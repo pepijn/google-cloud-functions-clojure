@@ -1,5 +1,6 @@
 (ns nl.epij.gcf-ring-adapter-example
-  (:require [ring.middleware.json :refer [wrap-json-body]]
+  (:require [ring.middleware.json :as m.json]
+            [ring.middleware.lint :as m.lint]
             [cheshire.core :as json]))
 
 (defn handler
@@ -9,4 +10,6 @@
    :body   (str (json/generate-string body {:pretty true}) "\n")})
 
 (def app
-  (wrap-json-body handler))
+  (-> handler
+      m.json/wrap-json-body
+      #_m.lint/wrap-lint))

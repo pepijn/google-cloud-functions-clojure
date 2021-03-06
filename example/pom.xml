@@ -40,6 +40,12 @@
             <artifactId>ring-json</artifactId>
             <version>0.5.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>ring</groupId>
+            <artifactId>ring-devel</artifactId>
+            <version>1.8.2</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -13,18 +13,24 @@
 
 (defn adapter
   [^HttpRequest http-request ^HttpResponse http-response handler]
-  (prn)
-  (let [headers       (into {}
-                            (map (fn [[k v]] [(str/lower-case k) (str/join v)]))
-                            (.getHeaders http-request))
+  (let [{:strs [host
+                x-forwarded-for
+                x-forwarded-proto] :as headers}
+        (into {}
+              (map (fn [[k v]] [(str/lower-case k) (str/join v)]))
+              (.getHeaders http-request))
+
         query-string  ^Optional (.getQuery http-request)
         query-string' (.orElse query-string nil)]
     (-> (handler {:request-method (-> (.getMethod http-request)
                                       str/lower-case
                                       keyword)
-                  :uri            (.getUri http-request)
-                  :path           (.getPath http-request)
+                  :uri            (.getPath http-request)
                   :query-string   query-string'
                   :headers        headers
-                  :body           (.getInputStream http-request)})
+                  :body           (.getInputStream http-request)
+
+                  :server-name    host
+                  :remote-addr    x-forwarded-for
+                  :scheme         (keyword x-forwarded-proto)})
         (process-response! http-response))))
