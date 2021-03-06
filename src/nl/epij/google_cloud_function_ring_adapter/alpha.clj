@@ -6,8 +6,9 @@
 
 (defn process-response!
   [{:keys [status headers body]} http-response]
-  (doseq [[key value] headers]
-    (.appendHeader http-response key value))
+  (doseq [[key value] headers
+          :let [key' (if (keyword? key) (name key) key)]]
+    (.appendHeader http-response key' value))
   (.setStatusCode http-response status)
   (when body (.write ^BufferedWriter (.getWriter http-response) body)))
 
@@ -21,10 +22,11 @@
               (.getHeaders http-request))
 
         query-string  ^Optional (.getQuery http-request)
-        query-string' (.orElse query-string nil)]
-    (-> (handler {:request-method (-> (.getMethod http-request)
-                                      str/lower-case
-                                      keyword)
+        query-string' (.orElse query-string nil)
+        request-method (-> (.getMethod http-request)
+                           str/lower-case
+                           keyword)]
+    (-> (handler {:request-method request-method
                   :uri            (.getPath http-request)
                   :query-string   query-string'
                   :headers        headers
