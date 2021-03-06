@@ -10,6 +10,7 @@
                                       str/lower-case
                                       keyword)
                   :uri            (.getUri http-request)
+                  :path           (.getPath http-request)
                   :query-string   (.getQuery http-request)
                   :headers        (.getHeaders http-request)
                   :body           (.getInputStream http-request)})]
