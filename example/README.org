@@ -10,22 +10,12 @@ mvn function:run
 #+begin_src sh :results verbatim :noweb yes :exports none
 <<start-server>> > /tmp/output.log &
 echo $!
-sleep 5
+sleep 4
 #+end_src
 
 #+name: pid
 #+RESULTS:
-: 49961
-
-#+begin_src sh :results verbatim :exports results
-cat /tmp/output.log | tail -n 4
-#+end_src
-
-#+RESULTS:
-: [INFO] jetty-9.4.26.v20200117; built: 2020-01-17T12:35:33.676Z; git: 7b38981d25d14afb4a12ff1f2596756144edf695; jvm 15.0.1+9
-: [INFO] Started o.e.j.s.ServletContextHandler@2cd4e16a{/,null,AVAILABLE}
-: [INFO] Started ServerConnector@340d6d89{HTTP/1.1,[http/1.1]}{0.0.0.0:8080}
-: [INFO] Started @2799ms
+: 50831
 
 Then test it with curl:
 
@@ -40,15 +30,34 @@ x-forwarded-proto: https
 #+end_src
 
 #+RESULTS:
-: HTTP/1.1 200 OK
-: Date: Wed, 10 Mar 2021 13:24:22 GMT
-: Transfer-Encoding: chunked
-: Server: Jetty(9.4.26.v20200117)
-: 
-: {
-:   "a" : 1,
-:   "b" : 3
-: }
+#+begin_example
+HTTP/1.1 200 OK
+Date: Wed, 10 Mar 2021 13:27:37 GMT
+Transfer-Encoding: chunked
+Server: Jetty(9.4.26.v20200117)
+
+{
+  "request-method" : "post",
+  "uri" : "/",
+  "query-string" : null,
+  "headers" : {
+    "accept" : "*/*",
+    "user-agent" : "curl/7.64.1",
+    "x-forwarded-proto" : "https",
+    "x-forwarded-for" : "127.0.0.1",
+    "host" : "localhost",
+    "content-length" : "16",
+    "content-type" : "application/json"
+  },
+  "body" : {
+    "a" : 1,
+    "b" : 3
+  },
+  "server-name" : "localhost",
+  "remote-addr" : "127.0.0.1",
+  "scheme" : "https"
+}
+#+end_example
 
 
 #+begin_src sh :var PID=pid :exports none

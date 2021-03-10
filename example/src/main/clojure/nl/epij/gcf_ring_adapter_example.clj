@@ -4,10 +4,11 @@
             [cheshire.core :as json]))
 
 (defn handler
-  [{:keys [body] :as x}]
+  [{:keys [body headers] :as x}]
   (prn x)
   {:status 200
-   :body   (str (json/generate-string body {:pretty true}) "\n")})
+   :body   (json/generate-string x
+                                 {:pretty true})})
 
 (def app
   (-> handler
