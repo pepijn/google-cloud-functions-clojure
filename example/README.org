@@ -1,0 +1,81 @@
+* Example project
+
+Here's how you would run this HTTP echo JSON pretty printer service:
+
+#+begin_src sh :results verbatim
+mvn function:run > /tmp/output.log &
+echo $!
+#+end_src
+
+#+name: pid
+#+RESULTS:
+: 47197
+
+#+begin_src sh :results verbatim
+cat /tmp/output.log
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------< com.example.cloud.functions:functions-hello-world >----------
+[INFO] Building functions-hello-world 1.0.0-SNAPSHOT
+[INFO] ------------------------------[ clojure ]-------------------------------
+[INFO] 
+[INFO] >>> function-maven-plugin:0.9.7:run (default-cli) > compile @ functions-hello-world >>>
+[INFO] 
+[INFO] --- clojure-maven-plugin:1.8.3:add-source (default-add-source) @ functions-hello-world ---
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ functions-hello-world ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Using 'null' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory /Users/pepe/dev/libraries/google-cloud-function-ring-adapter/example/src/main/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ functions-hello-world ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- clojure-maven-plugin:1.8.3:compile (default-compile) @ functions-hello-world ---
+[INFO] 
+[INFO] <<< function-maven-plugin:0.9.7:run (default-cli) < compile @ functions-hello-world <<<
+[INFO] 
+[INFO] 
+[INFO] --- function-maven-plugin:0.9.7:run (default-cli) @ functions-hello-world ---
+[INFO] Calling Invoker with [--classpath, /Users/pepe/dev/libraries/google-cloud-function-ring-adapter/example/target/classes:/Users/pepe/.m2/repository/org/clojure/clojure/1.10.2/clojure-1.10.2.jar:/Users/pepe/.m2/repository/org/clojure/spec.alpha/0.2.194/spec.alpha-0.2.194.jar:/Users/pepe/.m2/repository/org/clojure/core.specs.alpha/0.2.56/core.specs.alpha-0.2.56.jar:/Users/pepe/.m2/repository/ring/ring-json/0.5.0/ring-json-0.5.0.jar:/Users/pepe/.m2/repository/cheshire/cheshire/5.9.0/cheshire-5.9.0.jar:/Users/pepe/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.9.9/jackson-core-2.9.9.jar:/Users/pepe/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-smile/2.9.9/jackson-dataformat-smile-2.9.9.jar:/Users/pepe/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-cbor/2.9.9/jackson-dataformat-cbor-2.9.9.jar:/Users/pepe/.m2/repository/tigris/tigris/0.1.1/tigris-0.1.1.jar:/Users/pepe/.m2/repository/ring/ring-core/1.7.1/ring-core-1.7.1.jar:/Users/pepe/.m2/repository/ring/ring-codec/1.1.1/ring-codec-1.1.1.jar:/Users/pepe/.m2/repository/commons-codec/commons-codec/1.11/commons-codec-1.11.jar:/Users/pepe/.m2/repository/commons-io/commons-io/2.6/commons-io-2.6.jar:/Users/pepe/.m2/repository/commons-fileupload/commons-fileupload/1.3.3/commons-fileupload-1.3.3.jar:/Users/pepe/.m2/repository/clj-time/clj-time/0.14.3/clj-time-0.14.3.jar:/Users/pepe/.m2/repository/joda-time/joda-time/2.9.9/joda-time-2.9.9.jar:/Users/pepe/.m2/repository/crypto-random/crypto-random/1.2.0/crypto-random-1.2.0.jar:/Users/pepe/.m2/repository/crypto-equality/crypto-equality/1.0.0/crypto-equality-1.0.0.jar:/Users/pepe/.m2/repository/ring/ring-devel/1.8.2/ring-devel-1.8.2.jar:/Users/pepe/.m2/repository/hiccup/hiccup/1.0.5/hiccup-1.0.5.jar:/Users/pepe/.m2/repository/clj-stacktrace/clj-stacktrace/0.2.8/clj-stacktrace-0.2.8.jar:/Users/pepe/.m2/repository/ns-tracker/ns-tracker/0.4.0/ns-tracker-0.4.0.jar:/Users/pepe/.m2/repository/org/clojure/tools.namespace/0.2.11/tools.namespace-0.2.11.jar:/Users/pepe/.m2/repository/org/clojure/java.classpath/0.3.0/java.classpath-0.3.0.jar:/Users/pepe/.m2/repository/ring-cors/ring-cors/0.1.13/ring-cors-0.1.13.jar, --target, functions.JsonHttpEcho, --port, 8080]
+[INFO] Logging initialized @2884ms to org.eclipse.jetty.util.log.Slf4jLog
+[INFO] jetty-9.4.26.v20200117; built: 2020-01-17T12:35:33.676Z; git: 7b38981d25d14afb4a12ff1f2596756144edf695; jvm 15.0.1+9
+[INFO] Started o.e.j.s.ServletContextHandler@4364863{/,null,AVAILABLE}
+[INFO] Started ServerConnector@51ab1ee3{HTTP/1.1,[http/1.1]}{0.0.0.0:8080}
+[INFO] Started @2977ms
+#+end_example
+
+Then test it with curl:
+
+#+begin_src http
+POST http://localhost:8080
+Content-Type:application/json
+Host: localhost
+x-forwarded-for: 127.0.0.1
+x-forwarded-proto: https
+
+{"a": 1, "b": 3}
+#+end_src
+
+#+RESULTS:
+#+begin_example
+HTTP/1.1 200 OK
+Date: Wed, 10 Mar 2021 13:16:14 GMT
+Access-Control: lol
+Transfer-Encoding: chunked
+Server: Jetty(9.4.26.v20200117)
+
+{
+  "a" : 1,
+  "b" : 3
+}
+#+end_example
+
+
+#+begin_src sh :var PID=pid
+kill $PID
+#+end_src
