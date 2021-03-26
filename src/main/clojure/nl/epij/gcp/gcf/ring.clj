@@ -1,4 +1,4 @@
-(ns nl.epij.google-cloud-function-ring-adapter.alpha
+(ns nl.epij.gcp.gcf.ring
   (:require [clojure.string :as str])
   (:import (com.google.cloud.functions HttpRequest HttpResponse)
            (java.io BufferedWriter)
