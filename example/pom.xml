@@ -23,16 +23,15 @@
     <dependencies>
         <!-- Required for Function primitives -->
         <dependency>
-            <groupId>com.google.cloud.functions</groupId>
-            <artifactId>functions-framework-api</artifactId>
-            <version>1.0.4</version>
-            <scope>provided</scope>
+            <groupId>nl.epij</groupId>
+            <artifactId>google-cloud-function-ring-adapter</artifactId>
+            <version>0.1.0-alpha8</version>
         </dependency>
 
         <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>clojure</artifactId>
-            <version>1.10.2</version>
+            <version>1.10.3</version>
         </dependency>
 
         <dependency>
@@ -45,6 +44,12 @@
             <groupId>ring</groupId>
             <artifactId>ring-devel</artifactId>
             <version>1.8.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.12.1</version>
         </dependency>
     </dependencies>
 
@@ -76,7 +81,6 @@
                 <configuration>
                     <sourceDirectories>
                         <sourceDirectory>src/main/clojure</sourceDirectory>
-                        <sourceDirectory>../src</sourceDirectory>
                     </sourceDirectories>
                     <testSourceDirectories>
                         <testSourceDirectory>src/test/clojure</testSourceDirectory>
