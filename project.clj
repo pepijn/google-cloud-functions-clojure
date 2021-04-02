@@ -10,4 +10,8 @@
   :resource-paths []
   :dependencies [[org.clojure/clojure "1.10.3" :scope "provided"]
                  [nl.epij/google-cloud-function-commons "0.1.0-SNAPSHOT"]]
-  :profiles {:base {:resource-paths []}})
+  :profiles {:base {:resource-paths []}}
+  :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
+                                    :username      :env/clojars_user
+                                    :password      :env/clojars_pass
+                                    :sign-releases false}]])

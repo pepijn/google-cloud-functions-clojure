@@ -1,6 +1,6 @@
 name: Test
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   lint:
@@ -15,20 +15,51 @@ jobs:
       - name: Run linter
         run: clj-kondo --lint src test
 
-  test:
+  deps:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v1
+
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven
+
+      - name: Run tests
+        run: lein deps
+
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - deps
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven
 
       - name: Run tests
         run: lein test
 
   compile-java:
     runs-on: ubuntu-latest
+    needs:
+      - deps
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v1
+
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven
 
       - name: Compile Java
         run: lein javac
@@ -45,14 +76,18 @@ jobs:
   jar:
     runs-on: ubuntu-latest
     needs:
-      - lint
-      - test
       - compile-java
     steps:
       - uses: actions/download-artifact@v2
         with:
           name: classes
           path: .
+
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven
 
       - name: Package JAR
         run: lein jar
@@ -62,3 +97,35 @@ jobs:
         with:
           name: jar
           path: target/*.jar
+          if-no-files-found: error
+
+  publish-snapshot:
+    runs-on: ubuntu-latest
+    needs:
+      - jar
+      - lint
+      - test
+    steps:
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: classes
+          path: .
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: jar
+          path: target
+
+      - run: find .
+
+      - name: Deploy JAR
+        env:
+          CLOJARS_USER: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_PASS: ${{ secrets.CLOJARS_PASSWORD }}
+        run: lein deploy clojars
