@@ -18,3 +18,16 @@ jobs:
 
       - name: Run linter
         run: clj-kondo --lint src test
+
+  compile-java:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - uses: DeLaGuardo/setup-clj-kondo@master
+        with:
+          version: '2021.03.31'
+
+      - name: Compile Java
+        run: lein javac

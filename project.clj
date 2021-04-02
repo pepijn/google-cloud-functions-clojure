@@ -5,7 +5,9 @@
             :url  "https://opensource.org/licenses/MIT"}
   :source-paths ["src/clojure"]
   :test-paths ["test/clojure"]
-  :java-source-paths ["src/java" "src/resources"]
-  :javac-options ["-target" "11" "-source" "11"]
+  :java-source-paths ["src/java"]
+  :javac-options ["-target" "11" "-source" "11" "-Xlint:all" "-Werror"]
+  :resource-paths []
   :dependencies [[org.clojure/clojure "1.10.3" :scope "provided"]
-                 [nl.epij/google-cloud-function-commons "0.1.0-SNAPSHOT"]])
+                 [nl.epij/google-cloud-function-commons "0.1.0-SNAPSHOT"]]
+  :profiles {:base {:resource-paths []}})
