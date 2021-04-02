@@ -20,19 +20,20 @@
         (into {}
               (map (fn [[k v]] [(str/lower-case k) (str/join v)]))
               (.getHeaders http-request))
-
-        query-string  ^Optional (.getQuery http-request)
-        query-string' (.orElse query-string nil)
+        query-string   ^Optional (.getQuery http-request)
+        query-string'  (.orElse query-string nil)
         request-method (-> (.getMethod http-request)
                            str/lower-case
-                           keyword)]
-    (-> (handler {:request-method request-method
-                  :uri            (.getPath http-request)
-                  :query-string   query-string'
-                  :headers        headers
-                  :body           (.getInputStream http-request)
+                           keyword)
+        uri            (.getPath http-request)
+        request        {:request-method request-method
+                        :uri            uri
+                        :query-string   query-string'
+                        :headers        headers
+                        :body           (.getInputStream http-request)
 
-                  :server-name    host
-                  :remote-addr    x-forwarded-for
-                  :scheme         (keyword x-forwarded-proto)})
+                        :server-name    host
+                        :remote-addr    x-forwarded-for
+                        :scheme         (keyword x-forwarded-proto)}]
+    (-> (handler request)
         (process-response! http-response))))
