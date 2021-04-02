@@ -25,9 +25,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
 
-      - name: Run tests
+      - name: Download deps
         run: lein deps
 
   test:
@@ -42,67 +42,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
 
       - name: Run tests
-        run: lein test
-
-  compile-java:
-    runs-on: ubuntu-latest
-    needs:
-      - deps
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Maven cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven
-
-      - name: Compile Java
-        run: lein javac
-
-      - name: Store compiled artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: classes
-          path: |
-            project.clj
-            src/clojure
-            target/classes
-
-  jar:
-    runs-on: ubuntu-latest
-    needs:
-      - compile-java
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: classes
-          path: .
-
-      - name: Maven cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven
-
-      - name: Package JAR
-        run: lein jar
-
-      - name: Store JAR
-        uses: actions/upload-artifact@v2
-        with:
-          name: jar
-          path: target/*.jar
-          if-no-files-found: error
+        run: lein -o test
 
   publish-snapshot:
     runs-on: ubuntu-latest
     needs:
-      - jar
       - lint
       - test
     steps:
@@ -110,19 +57,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
 
-      - uses: actions/download-artifact@v2
-        with:
-          name: classes
-          path: .
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: jar
-          path: target
-
-      - run: find .
+      - name: Check out Git repository
+        uses: actions/checkout@v1
 
       - name: Deploy JAR
         env:
