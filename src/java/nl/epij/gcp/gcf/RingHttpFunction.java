@@ -24,13 +24,17 @@ public abstract class RingHttpFunction implements HttpFunction {
      * The fully qualified Clojure ring handler function to call for every incoming HTTP request.
      */
     public abstract String getHandler();
+    public final String getAdapter() {
+        return adapterNs + "/" + adapterFn;
+    }
 
     private IFn require = null;
     private IFn adapter = null;
     private IFn handler = null;
 
+    @Override
     public void service(HttpRequest request, HttpResponse response) {
-        String trace = request.getFirstHeader("X-Cloud-Trace-Context").get().split("/")[0];
+        String trace = request.getFirstHeader("X-Cloud-Trace-Context").orElse("").split("/")[0];
         String projectId = ServiceOptions.getDefaultProjectId();
         String traceId = String.format("projects/%s/traces/%s", projectId, trace);
 
