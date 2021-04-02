@@ -3,18 +3,6 @@ name: Test
 on: [ push, pull_request ]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: DeLaGuardo/setup-clj-kondo@master
-        with:
-          version: '2021.03.31'
-
-      - uses: actions/checkout@v1
-
-      - name: Run linter
-        run: clj-kondo --lint src test
-
   deps:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +17,18 @@ jobs:
 
       - name: Download deps
         run: lein deps
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: DeLaGuardo/setup-clj-kondo@master
+        with:
+          version: '2021.03.31'
+
+      - uses: actions/checkout@v1
+
+      - name: Run linter
+        run: clj-kondo --lint src test
 
   test:
     runs-on: ubuntu-latest
