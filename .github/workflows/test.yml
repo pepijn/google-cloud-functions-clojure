@@ -9,3 +9,12 @@ jobs:
       - uses: DeLaGuardo/setup-clj-kondo@master
         with:
           version: '2021.03.31'
+
+      - uses: DeLaGuardo/setup-clojure@master
+        with:
+          tools-deps: '1.10.3.814'
+
+      - uses: actions/checkout@v1
+
+      - name: Run linter
+        run: clj-kondo --lint src test
