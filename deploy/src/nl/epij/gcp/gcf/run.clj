@@ -11,21 +11,27 @@
             [clojure.edn :as edn])
   (:import (java.lang Process)))
 
-(defn get-clj-nss
-  [{:keys [compile-path entrypoint] :as opts}]
+(defn run-clj!
+  [args]
+  (let [{:keys [err exit] :as proc}
+        @(process/process (concat ["clojure"] args)
+                          {:out :string :err :string})]
+    (print err)
+    (assert (zero? exit) args)
+    proc))
+
+(defn get-clj-nss!
+  [{:keys [compile-path entrypoint]}]
   (let [deps {:aliases {:java {:replace-paths [compile-path]}}}
         eval `(let [object# (new ~entrypoint)]
                 {::handler-ns (-> (.getHandler object#) symbol namespace symbol)
                  ::adapter-ns (-> (.getAdapter object#) symbol namespace symbol)})
-        {:keys [out err exit] :as proc} @(process/process ["clojure" "-Sdeps" deps "-M:java" "--eval" eval]
-                                                          {:out :string :err :string})
-        _    (print err)
-        _    (assert (zero? exit) opts)
+        {:keys [out] :as proc} (run-clj! ["-Sdeps" deps "-M:java" "--eval" eval])
         {::keys [handler-ns adapter-ns]} (edn/read-string out)]
     (assoc proc :namespaces [handler-ns adapter-ns])))
 
-(comment (get-clj-nss {:entrypoint   'Entrypoint
-                       :compile-path "target/uberjar/development/classes"})
+(comment (get-clj-nss! {:entrypoint   'Entrypoint
+                        :compile-path "target/uberjar/development/classes"})
          )
 
 (defonce server (atom nil))
@@ -63,17 +69,27 @@
            extra-paths  []
            class-path   (->> (jcp/system-classpath) (str/join ":"))}
     :as   opts}]
-  (let [uberjar-path (io/file (str out-path "/output/libs/uberjar.jar"))
+  (let [uberjar-path       (io/file (str out-path "/output/libs/uberjar.jar"))
+        invoker-class-path (-> (run-clj! '["-Sdeps" {:aliases {:invoker {:replace-deps  {com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}
+                                                                         :replace-paths []}}}
+                                           "-A:invoker"
+                                           "-Spath"])
+                               :out
+                               str/trim)
         {:keys [entrypoint-jar]} (entrypoint-jar! (assoc opts :out-path (str out-path "/output/entrypoint.jar")
                                                               :manifest-class-path "libs/uberjar.jar"))]
     (depstar/build-jar {:jar        uberjar-path
                         :compile-ns (if namespaces
                                       namespaces
                                       (-> (merge {:compile-path compile-path} opts)
-                                          (get-clj-nss)
+                                          (get-clj-nss!)
                                           :namespaces))
                         :exclude    [".+\\.(clj|dylib|dll|so)$"]})
-    {:class-path (str uberjar-path ":" entrypoint-jar ":/Users/pepe/.m2/repository/com/google/cloud/functions/invoker/java-function-invoker/1.0.2/java-function-invoker-1.0.2.jar:/Users/pepe/.m2/repository/org/clojure/clojure/1.10.1/clojure-1.10.1.jar:/Users/pepe/.m2/repository/org/clojure/core.specs.alpha/0.2.44/core.specs.alpha-0.2.44.jar:/Users/pepe/.m2/repository/org/clojure/spec.alpha/0.2.176/spec.alpha-0.2.176.jar")}))
+    {:class-path (str uberjar-path ":" entrypoint-jar ":" invoker-class-path)}))
+
+(comment
+
+ )
 
 (defn start-server!
   [{:keys [entrypoint mode]
