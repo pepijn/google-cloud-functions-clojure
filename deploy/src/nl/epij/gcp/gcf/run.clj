@@ -70,10 +70,11 @@
            class-path   (->> (jcp/system-classpath) (str/join ":"))}
     :as   opts}]
   (let [uberjar-path       (io/file (str out-path "/output/libs/uberjar.jar"))
-        invoker-class-path (-> (run-clj! '["-Sdeps" {:aliases {:invoker {:replace-deps  {com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}
-                                                                         :replace-paths []}}}
-                                           "-A:invoker"
-                                           "-Spath"])
+        invoker-deps       '{com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}
+        invoker-class-path (-> (run-clj! ["-Sdeps" {:aliases {:invoker {:replace-deps  invoker-deps
+                                                                        :replace-paths []}}}
+                                          "-A:invoker"
+                                          "-Spath"])
                                :out
                                str/trim)
         {:keys [entrypoint-jar]} (entrypoint-jar! (assoc opts :out-path (str out-path "/output/entrypoint.jar")
