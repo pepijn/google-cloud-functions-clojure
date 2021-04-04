@@ -10,8 +10,9 @@
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.clojure-test :as tct])
-  (:import [com.google.cloud.functions HttpRequest]
-           [java.util Optional]))
+  (:import [com.google.cloud.functions HttpRequest HttpResponse]
+           [java.util Optional]
+           [java.io BufferedWriter Writer StringWriter BufferedReader StringReader ByteArrayOutputStream ByteArrayInputStream]))
 
 (s/check-asserts true)
 
@@ -29,6 +30,16 @@
       (io/input-stream (cond-> body
                                (string? body)
                                (.getBytes))))))
+
+(defn ^HttpResponse create-response
+  [state stream]
+  (proxy [HttpResponse] []
+    (appendHeader [header value]
+      (swap! state update :headers #(merge % {header value})))
+    (setStatusCode [code message]
+      (swap! state assoc :status code)
+      (swap! state assoc :message message))
+    (getWriter [] (io/writer stream))))
 
 (defn config->request
   [config]
@@ -65,14 +76,42 @@
       (s/assert :ring/request request)
       (s/assert :ring/response response))))
 
-(comment
- (tc/quick-check 100 valid-request-prop)
+(def valid-response-prop
+  (props/for-all [handler-config handler-config-gen
+                  message        (gen/one-of [gen/string (gen/return nil)])]
+    (let [os              (ByteArrayOutputStream.)
+          state           (atom {:headers {}})
+          response        (create-response state os)
+          handler-config' (-> handler-config (assoc :message message))
+          _               (ring/process-response! handler-config' response)
+          config'         (-> handler-config'
+                              (update :headers #(reduce-kv (fn [m k v] (assoc m k (str/join v))) {} %)))
+          output          (-> @state
+                              (assoc :body (.toString os)))]
+      ;; TODO: find a way to compare body (mind input stream etc.)
+      (= (dissoc config' :body) (dissoc output :body)))))
 
- (gen/generate handler-config-gen)
+(comment
+
+ (tc/quick-check 100 valid-response-prop)
+
+ (comment
+  (let [os       (ByteArrayOutputStream.)
+        state    (atom {})
+        response (create-response state os)
+        config   (gen/generate handler-config-gen)
+        ring     (ring/process-response! config response)]
+    (prn os)
+    (assoc @state
+      :input-body (:body config)
+      :body (.toString os)))
+  )
 
  (s/explain-data :ring/response (handler (gen/generate request-config-gen))))
 
 (tct/defspec prop-request 1000 valid-request-prop)
+
+(tct/defspec prop-response 1000 valid-response-prop)
 
 (defn parse-body
   [req]
@@ -101,7 +140,8 @@
             :scheme         :https
             :server-name    "example.com"
             :server-port    8080
-            :uri            "/opa"}))
+            :uri            "/opa"
+            :protocol       "N/A"}))
     (testing "whether the linter is working correctly"
       (is (valid-request? req))
       (is (thrown? Exception (handler (dissoc ring :remote-addr)))))

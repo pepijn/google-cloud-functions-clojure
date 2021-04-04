@@ -1,17 +1,28 @@
 (ns nl.epij.gcp.gcf.ring
   (:require [clojure.string :as str]
-            [nl.epij.gcp.gcf.env :as env])
+            [nl.epij.gcp.gcf.env :as env]
+            [clojure.java.io :as io])
   (:import (com.google.cloud.functions HttpRequest HttpResponse)
-           (java.io BufferedWriter)
+           (java.io BufferedWriter ByteArrayInputStream)
            [java.util Optional]))
 
 (defn process-response!
-  [{:keys [status headers body]} http-response]
+  [{:keys [status message headers body]} http-response]
   (doseq [[key value] headers
           :let [key' (if (keyword? key) (name key) key)]]
-    (.appendHeader http-response key' value))
-  (.setStatusCode http-response status)
-  (when body (.write ^BufferedWriter (.getWriter http-response) body)))
+    (.appendHeader http-response key' (str/join value)))
+  (.setStatusCode http-response status message)
+  (when body
+    (let [writer ^BufferedWriter (.getWriter http-response)]
+      (cond (string? body)
+            (.write writer ^String body)
+
+            (seq? body)
+            (.write writer ^String (str/join body))
+
+            :else
+            (io/copy body writer))
+      (.close writer))))
 
 (defn request->ring
   [^HttpRequest http-request port]
