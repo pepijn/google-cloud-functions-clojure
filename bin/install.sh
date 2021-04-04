@@ -10,6 +10,6 @@ cd "$(dirname "$(realpath "$0")")/.."
 
 clj-kondo --lint src/clojure --lint test/clojure
 
-lein test
+lein with-profile compile,dev test
 
 lein install

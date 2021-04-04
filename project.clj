@@ -10,8 +10,10 @@
   :resource-paths []
   :dependencies [[org.clojure/clojure "1.10.3" :scope "provided"]
                  [nl.epij/google-cloud-function-commons "0.1.0-SNAPSHOT"]]
-  :profiles {:base {:resource-paths []}
-             :dev  {:dependencies [[ring/ring-devel "1.8.2"]]}}
+  :profiles {:compile {:resource-paths []}
+             :dev     {:dependencies [[org.clojure/test.check "1.1.0"]
+                                      [ring/ring-devel "1.8.2"]
+                                      [ring/ring-spec "0.0.4"]]}}
   :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
                                     :username      :env/clojars_user
                                     :password      :env/clojars_pass
