@@ -9,18 +9,21 @@
            [java.util.zip ZipFile]
            [java.io File]))
 
+(defn delete-dir!
+  [dir]
+  (run! io/delete-file (->> (.toFile dir) (.listFiles)))
+  (Files/delete dir))
+
 (defn compiled-java!
   [body]
   (let [tmp-dir        ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-        class-path     (classpath/make-classpath {:aliases [:example]})
-        compiled-files #(->> (.toFile tmp-dir) (.listFiles))]
+        class-path     (classpath/make-classpath {:aliases [:example]})]
     (try
       (run/compile-javac! {:src-dir       "../example/src/java"
                            :compile-path  tmp-dir
                            :javac-options ["-cp" class-path]})
       (body (.toFile tmp-dir))
-      (finally (run! io/delete-file (compiled-files))
-                 (Files/delete tmp-dir)))))
+      (finally (delete-dir! tmp-dir)))))
 
 (deftest java-compilation
   (is (= (compiled-java! (fn [dir] (->> dir (.listFiles) (mapv #(.getName %)))))
@@ -31,13 +34,11 @@
   (compiled-java!
    (fn [compile-path]
      (let [tmp-dir   ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-           artifacts #(->> (.toFile tmp-dir) (.listFiles))
            jar-path  (io/file (.toFile tmp-dir) "entrypoint.jar")]
        (try (run/entrypoint-jar2! {:out-path     (str jar-path)
                                    :compile-path (str compile-path)})
             (body jar-path)
-            (finally (run! io/delete-file (artifacts))
-                     (Files/delete tmp-dir)))))))
+            (finally (delete-dir! tmp-dir)))))))
 
 (defn files-in-zip
   [^ZipFile f]
@@ -56,7 +57,6 @@
   (compiled-java!
    (fn [compile-path]
      (let [tmp-dir   ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-           artifacts #(->> (.toFile tmp-dir) (.listFiles))
            jar-path  (io/file (.toFile tmp-dir) "entrypoint-uberjar.jar")
            deps      (deps/slurp-deps (io/file "../example/deps.edn"))
            options   (get-in deps [:aliases :run-local :exec-args])]
@@ -65,8 +65,7 @@
                                               :aliases      [:example]
                                               :compile-path compile-path}))
             (body jar-path)
-            (finally (run! io/delete-file (artifacts))
-                     (Files/delete tmp-dir)))))))
+            (finally (delete-dir! tmp-dir)))))))
 
 (deftest entrypoint-uberjar-generation
   (is (= (count (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %))))

@@ -104,8 +104,8 @@
 
 (defn entrypoint-uberjar2!
   [{:keys [compile-path aliases namespaces out-path]
-    :or   {compile-path "target/uberjar/classes"
-           out-path     (str (bundle/make-out-path 'uberjar nil))}
+    :or   {aliases  []
+           out-path (str (bundle/make-out-path 'uberjar nil))}
     :as   opts}]
   (depstar/build-jar {:jar        out-path
                       :aliases    aliases
