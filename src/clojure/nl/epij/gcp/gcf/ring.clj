@@ -1,5 +1,6 @@
 (ns nl.epij.gcp.gcf.ring
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as str]
+            [nl.epij.gcp.gcf.env :as env])
   (:import (com.google.cloud.functions HttpRequest HttpResponse)
            (java.io BufferedWriter)
            [java.util Optional]))
@@ -16,7 +17,8 @@
   [^HttpRequest http-request ^HttpResponse http-response handler]
   (let [{:strs [host
                 x-forwarded-for
-                x-forwarded-proto] :as headers}
+                x-forwarded-proto]
+         :as headers}
         (into {}
               (map (fn [[k v]] [(str/lower-case k) (str/join v)]))
               (.getHeaders http-request))
@@ -26,14 +28,17 @@
                            str/lower-case
                            keyword)
         uri            (.getPath http-request)
-        request        {:request-method request-method
+        {::env/keys [port] :as platform-env} (env/extract-env-vars!)
+        request-base   {:request-method request-method
                         :uri            uri
                         :query-string   query-string'
                         :headers        headers
                         :body           (.getInputStream http-request)
 
                         :server-name    host
+                        :server-port    (Integer/parseInt port)
                         :remote-addr    x-forwarded-for
-                        :scheme         (keyword x-forwarded-proto)}]
+                        :scheme         (keyword x-forwarded-proto)}
+        request        (merge request-base platform-env)]
     (-> (handler request)
         (process-response! http-response))))
