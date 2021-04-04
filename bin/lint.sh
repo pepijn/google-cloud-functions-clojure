@@ -4,4 +4,4 @@ set -euxo pipefail
 
 cd "$(dirname "$(realpath "$0")")/.."
 
-clj-kondo --lint ./{**,}/src
+clj-kondo --lint .{,/**}/src

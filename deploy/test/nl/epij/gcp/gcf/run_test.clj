@@ -14,16 +14,21 @@
   (run! io/delete-file (->> (.toFile dir) (.listFiles)))
   (Files/delete dir))
 
+(defn with-tmp-dir
+  [body]
+  (let [tmp-dir ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))]
+    (try (body tmp-dir)
+         (finally (delete-dir! tmp-dir)))))
+
 (defn compiled-java!
   [body]
-  (let [tmp-dir        ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-        class-path     (classpath/make-classpath {:aliases [:example]})]
-    (try
-      (run/compile-javac! {:src-dir       "../example/src/java"
-                           :compile-path  tmp-dir
-                           :javac-options ["-cp" class-path]})
-      (body (.toFile tmp-dir))
-      (finally (delete-dir! tmp-dir)))))
+  (with-tmp-dir
+   (fn [tmp-dir]
+     (let [class-path (classpath/make-classpath {:aliases [:example]})]
+       (try (run/compile-javac! {:src-dir       "../example/src/java"
+                                 :compile-path  tmp-dir
+                                 :javac-options ["-cp" class-path]})
+            (body (.toFile tmp-dir)))))))
 
 (deftest java-compilation
   (is (= (compiled-java! (fn [dir] (->> dir (.listFiles) (mapv #(.getName %)))))
@@ -31,14 +36,14 @@
 
 (defn compiled-entrypoint-jar!
   [body]
-  (compiled-java!
-   (fn [compile-path]
-     (let [tmp-dir   ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-           jar-path  (io/file (.toFile tmp-dir) "entrypoint.jar")]
-       (try (run/entrypoint-jar2! {:out-path     (str jar-path)
-                                   :compile-path (str compile-path)})
-            (body jar-path)
-            (finally (delete-dir! tmp-dir)))))))
+  (with-tmp-dir
+   (fn [tmp-dir]
+     (compiled-java!
+      (fn [compile-path]
+        (let [jar-path (io/file (.toFile tmp-dir) "entrypoint.jar")]
+          (run/entrypoint-jar2! {:out-path     (str jar-path)
+                                 :compile-path (str compile-path)})
+          (body jar-path)))))))
 
 (defn files-in-zip
   [^ZipFile f]
@@ -54,18 +59,18 @@
 
 (defn compiled-entrypoint-uberjar!
   [body]
-  (compiled-java!
-   (fn [compile-path]
-     (let [tmp-dir   ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-           jar-path  (io/file (.toFile tmp-dir) "entrypoint-uberjar.jar")
-           deps      (deps/slurp-deps (io/file "../example/deps.edn"))
-           options   (get-in deps [:aliases :run-local :exec-args])]
-       (try (run/entrypoint-uberjar2! (merge options
-                                             {:out-path     (str jar-path)
-                                              :aliases      [:example]
-                                              :compile-path compile-path}))
-            (body jar-path)
-            (finally (delete-dir! tmp-dir)))))))
+  (with-tmp-dir
+   (fn [tmp-dir]
+     (compiled-java!
+      (fn [compile-path]
+        (let [jar-path (io/file (.toFile tmp-dir) "entrypoint-uberjar.jar")
+              deps     (deps/slurp-deps (io/file "../example/deps.edn"))
+              options  (get-in deps [:aliases :run-local :exec-args])]
+          (run/entrypoint-uberjar2! (merge options
+                                           {:out-path     (str jar-path)
+                                            :aliases      [:example]
+                                            :compile-path compile-path}))
+          (body jar-path)))))))
 
 (deftest entrypoint-uberjar-generation
   (is (= (count (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %))))
