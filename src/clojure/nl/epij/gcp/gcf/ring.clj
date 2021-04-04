@@ -3,7 +3,7 @@
             [nl.epij.gcp.gcf.env :as env]
             [clojure.java.io :as io])
   (:import (com.google.cloud.functions HttpRequest HttpResponse)
-           (java.io BufferedWriter ByteArrayInputStream)
+           (java.io BufferedWriter)
            [java.util Optional]))
 
 (defn process-response!

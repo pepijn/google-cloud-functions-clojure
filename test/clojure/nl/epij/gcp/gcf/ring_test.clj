@@ -12,7 +12,7 @@
             [clojure.test.check.clojure-test :as tct])
   (:import [com.google.cloud.functions HttpRequest HttpResponse]
            [java.util Optional]
-           [java.io BufferedWriter Writer StringWriter BufferedReader StringReader ByteArrayOutputStream ByteArrayInputStream]))
+           [java.io ByteArrayOutputStream]))
 
 (s/check-asserts true)
 
@@ -95,17 +95,15 @@
 
  (tc/quick-check 100 valid-response-prop)
 
- (comment
-  (let [os       (ByteArrayOutputStream.)
-        state    (atom {})
-        response (create-response state os)
-        config   (gen/generate handler-config-gen)
-        ring     (ring/process-response! config response)]
-    (prn os)
-    (assoc @state
-      :input-body (:body config)
-      :body (.toString os)))
-  )
+ #_(let [os       (ByteArrayOutputStream.)
+         state    (atom {})
+         response (create-response state os)
+         config   (gen/generate handler-config-gen)
+         #_#_ring (ring/process-response! config response)]
+     (prn os)
+     (assoc @state
+       :input-body (:body config)
+       :body (.toString os)))
 
  (s/explain-data :ring/response (handler (gen/generate request-config-gen))))
 
@@ -143,6 +141,6 @@
             :uri            "/opa"
             :protocol       "N/A"}))
     (testing "whether the linter is working correctly"
-      (is (valid-request? req))
+      (is (handler (config->request req)))
       (is (thrown? Exception (handler (dissoc ring :remote-addr)))))
     req))
