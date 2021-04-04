@@ -61,6 +61,21 @@
     {:entrypoint-jar jar
      :class-path     (str class-path ":" jar)}))
 
+(defn entrypoint-jar2!
+  [{:keys [compile-path extra-paths class-path out-path manifest-class-path]
+    :or   {compile-path        "target/jar/classes"
+           extra-paths         []
+           manifest-class-path {}
+           class-path          (->> (jcp/system-classpath) (str/join ":"))}}]
+  (let [jar (jar/jar 'entrypoint
+                     nil
+                     {:allow-all-dependencies? true
+                      :out-path                out-path
+                      :paths                   (conj extra-paths compile-path)
+                      :manifest                {"Class-Path" manifest-class-path}})]
+    {:entrypoint-jar jar
+     :class-path     (str class-path ":" jar)}))
+
 (defn entrypoint-uberjar!
   [{:keys [compile-path namespaces out-path]
     :or   {compile-path "target/uberjar/classes"
