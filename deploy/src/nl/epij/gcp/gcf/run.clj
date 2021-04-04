@@ -22,7 +22,9 @@
 
 (defn get-clj-nss!
   [{:keys [compile-path entrypoint]}]
-  (let [deps {:aliases {:java {:replace-paths [compile-path]}}}
+  ;; TODO: replace with :aliases
+  (let [deps {:aliases {:java {:replace-deps  '{nl.epij/google-cloud-function-ring-adapter {:mvn/version "0.1.0-SNAPSHOT"}}
+                               :replace-paths [(str compile-path)]}}}
         eval `(let [object# (new ~entrypoint)]
                 {::handler-ns (-> (.getHandler object#) symbol namespace symbol)
                  ::adapter-ns (-> (.getAdapter object#) symbol namespace symbol)})
@@ -99,6 +101,21 @@
                                           :namespaces))
                         :exclude    [".+\\.(clj|dylib|dll|so)$"]})
     {:class-path (str uberjar-path ":" entrypoint-jar ":" invoker-class-path)}))
+
+(defn entrypoint-uberjar2!
+  [{:keys [compile-path aliases namespaces out-path]
+    :or   {compile-path "target/uberjar/classes"
+           out-path     (str (bundle/make-out-path 'uberjar nil))}
+    :as   opts}]
+  (depstar/build-jar {:jar        out-path
+                      :aliases    aliases
+                      :compile-ns (if namespaces
+                                    namespaces
+                                    (-> (merge {:compile-path compile-path} opts)
+                                        (get-clj-nss!)
+                                        :namespaces))
+                      :exclude    [".+\\.(clj|dylib|dll|so)$"]})
+  out-path)
 
 (comment
 

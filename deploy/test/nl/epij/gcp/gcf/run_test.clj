@@ -2,7 +2,8 @@
   (:require [clojure.test :refer [deftest is]])
   (:require [nl.epij.gcp.gcf.run :as run]
             [clojure.java.io :as io]
-            [badigeon.classpath :as classpath])
+            [badigeon.classpath :as classpath]
+            [clojure.tools.deps.alpha :as deps])
   (:import [java.nio.file Files Path]
            [java.nio.file.attribute FileAttribute]
            [java.util.zip ZipFile]
@@ -11,7 +12,7 @@
 (defn compiled-java!
   [body]
   (let [tmp-dir        ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
-        class-path     (classpath/make-classpath {:aliases [:test]})
+        class-path     (classpath/make-classpath {:aliases [:example]})
         compiled-files #(->> (.toFile tmp-dir) (.listFiles))]
     (try
       (run/compile-javac! {:src-dir       "../example/src/java"
@@ -19,7 +20,7 @@
                            :javac-options ["-cp" class-path]})
       (body (.toFile tmp-dir))
       (finally (run! io/delete-file (compiled-files))
-               (Files/delete tmp-dir)))))
+                 (Files/delete tmp-dir)))))
 
 (deftest java-compilation
   (is (= (compiled-java! (fn [dir] (->> dir (.listFiles) (mapv #(.getName %)))))
@@ -50,10 +51,23 @@
           "JsonHttpEcho.class"
           "META-INF/maven/entrypoint/entrypoint/pom.properties"])))
 
-(comment
+(defn compiled-entrypoint-uberjar!
+  [body]
+  (compiled-java!
+   (fn [compile-path]
+     (let [tmp-dir   ^Path (Files/createTempDirectory "gcf-ring" (make-array FileAttribute 0))
+           artifacts #(->> (.toFile tmp-dir) (.listFiles))
+           jar-path  (io/file (.toFile tmp-dir) "entrypoint-uberjar.jar")
+           deps      (deps/slurp-deps (io/file "../example/deps.edn"))
+           options   (get-in deps [:aliases :run-local :exec-args])]
+       (try (run/entrypoint-uberjar2! (merge options
+                                             {:out-path     (str jar-path)
+                                              :aliases      [:example]
+                                              :compile-path compile-path}))
+            (body jar-path)
+            (finally (run! io/delete-file (artifacts))
+                     (Files/delete tmp-dir)))))))
 
- (def zipf (compiled-entrypoint-jar! (fn [file] (ZipFile. file))))
-
- (iterator-seq (.entries zipf))
-
- )
+(deftest entrypoint-uberjar-generation
+  (is (= (count (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %))))
+         21113)))

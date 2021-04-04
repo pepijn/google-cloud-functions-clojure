@@ -12,7 +12,7 @@ pom.xml.asc
 .hg/
 *.iml
 /.idea
-/deploy/target
 **/.cpcache
 .nrepl-port
 /.clj-kondo/.cache
+/deploy/pom.xml
