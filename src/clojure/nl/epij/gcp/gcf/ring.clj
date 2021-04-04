@@ -13,12 +13,12 @@
   (.setStatusCode http-response status)
   (when body (.write ^BufferedWriter (.getWriter http-response) body)))
 
-(defn adapter
-  [^HttpRequest http-request ^HttpResponse http-response handler]
+(defn request->ring
+  [^HttpRequest http-request port]
   (let [{:strs [host
                 x-forwarded-for
                 x-forwarded-proto]
-         :as headers}
+         :as   headers}
         (into {}
               (map (fn [[k v]] [(str/lower-case k) (str/join v)]))
               (.getHeaders http-request))
@@ -27,18 +27,23 @@
         request-method (-> (.getMethod http-request)
                            str/lower-case
                            keyword)
-        uri            (.getPath http-request)
-        {::env/keys [port] :as platform-env} (env/extract-env-vars!)
-        request-base   {:request-method request-method
-                        :uri            uri
-                        :query-string   query-string'
-                        :headers        headers
-                        :body           (.getInputStream http-request)
+        uri            (.getPath http-request)]
+    {:request-method request-method
+     :uri            uri
+     :query-string   query-string'
+     :headers        headers
+     :body           (.getInputStream http-request)
 
-                        :server-name    host
-                        :server-port    (Integer/parseInt port)
-                        :remote-addr    x-forwarded-for
-                        :scheme         (keyword x-forwarded-proto)}
-        request        (merge request-base platform-env)]
-    (-> (handler request)
+     :server-name    host
+     :server-port    port
+     :remote-addr    x-forwarded-for
+     :scheme         (keyword x-forwarded-proto)}))
+
+(defn adapter
+  [^HttpRequest http-request ^HttpResponse http-response handler]
+  (let [{::env/keys [port] :as platform-env} (env/extract-env-vars!)
+        port' (some-> port (Integer/parseInt))]
+    (-> (request->ring http-request port')
+        (merge platform-env)
+        (handler)
         (process-response! http-response))))
