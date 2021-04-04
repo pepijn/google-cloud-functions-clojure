@@ -13,11 +13,11 @@
 
 (defn run-clj!
   [args]
-  (let [{:keys [err exit] :as proc}
-        @(process/process (concat ["clojure"] args)
-                          {:out :string :err :string})]
+  (let [args' (concat ["clojure"] args)
+        {:keys [err exit] :as proc}
+        @(process/process args' {:out :string :err :string})]
     (print err)
-    (assert (zero? exit) args)
+    (assert (zero? exit) (str/join " " args'))
     proc))
 
 (defn get-clj-nss!

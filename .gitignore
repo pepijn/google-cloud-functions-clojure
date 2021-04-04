@@ -10,3 +10,8 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+*.iml
+/.idea
+/deploy/target
+**/.cpcache
+.nrepl-port
