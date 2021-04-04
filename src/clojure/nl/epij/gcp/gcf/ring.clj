@@ -37,7 +37,9 @@
      :server-name    host
      :server-port    port
      :remote-addr    x-forwarded-for
-     :scheme         (keyword x-forwarded-proto)}))
+     :scheme         (keyword x-forwarded-proto)
+
+     :protocol       "N/A"}))
 
 (defn adapter
   [^HttpRequest http-request ^HttpResponse http-response handler]

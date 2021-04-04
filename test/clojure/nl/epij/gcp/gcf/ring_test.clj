@@ -5,13 +5,15 @@
             [ring.middleware.lint :as lint]
             [clojure.string :as str]
             [clojure.spec.alpha :as s]
-            [ring.core.spec :as ring.spec]
+            [ring.core.spec]
             [clojure.test.check.properties :as props]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.clojure-test :as tct])
   (:import [com.google.cloud.functions HttpRequest]
            [java.util Optional]))
+
+(s/check-asserts true)
 
 (def handler
   (lint/wrap-lint (fn [_] {:status 200 :headers {}})))
@@ -28,12 +30,11 @@
                                (string? body)
                                (.getBytes))))))
 
-(defn valid-request?
-  [req]
-  (let [ring (-> req create-request (ring/request->ring 8080))]
-    (handler ring)))
+(defn config->request
+  [config]
+  (-> config create-request (ring/request->ring 8080)))
 
-(def request-gen
+(def request-config-gen
   (gen/hash-map :headers (gen/let [base         (s/gen :ring.request/headers)
                                    host         (s/gen :ring.request/server-name)
                                    remote-addr  (s/gen :ring.request/remote-addr)
@@ -46,23 +47,36 @@
                 :path (s/gen :ring.request/uri)
                 :body (s/gen :ring.request/body)))
 
-(def valid-request-prop
-  (props/for-all [request request-gen] (valid-request? request)))
+(def handler-config-gen
+  (gen/hash-map :status (s/gen :ring.response/status)
+                :headers (s/gen :ring.response/headers)
+                :body (s/gen :ring.response/body)))
 
-(tct/defspec prop-request 100 valid-request-prop)
+(defn create-handler
+  [config]
+  (lint/wrap-lint (fn [_] config)))
+
+(def valid-request-prop
+  (props/for-all [request-config request-config-gen
+                  handler-config handler-config-gen]
+    (let [request  (config->request request-config)
+          handler  (create-handler handler-config)
+          response (handler request)]
+      (s/assert :ring/request request)
+      (s/assert :ring/response response))))
 
 (comment
- (tc/quick-check 1000 valid-request-prop)
+ (tc/quick-check 100 valid-request-prop)
 
- (s/explain-data :ring/response (gen/generate request-gen)))
+ (gen/generate handler-config-gen)
+
+ (s/explain-data :ring/response (handler (gen/generate request-config-gen))))
+
+(tct/defspec prop-request 1000 valid-request-prop)
 
 (defn parse-body
   [req]
   (update req :body slurp))
-
-(comment
- (remove-ns 'nl.epij.gcp.gcf.ring-test)
- )
 
 (deftest ring-adapter
   (let [headers {"Host"              ["example.com"]
