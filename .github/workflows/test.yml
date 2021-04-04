@@ -46,7 +46,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
 
       - name: Run tests
-        run: lein -o test
+        run: lein -o with-profile compile,dev test
 
   publish-snapshot:
     if: ${{ github.ref == 'refs/heads/master' }}
@@ -68,4 +68,4 @@ jobs:
         env:
           CLOJARS_USER: ${{ secrets.CLOJARS_USERNAME }}
           CLOJARS_PASS: ${{ secrets.CLOJARS_PASSWORD }}
-        run: lein deploy clojars
+        run: lein with-profile compile,dev deploy clojars
