@@ -1,7 +1,6 @@
 (ns nl.epij.gcf-ring-adapter-example
   (:require [ring.middleware.json :as m.json]
             [ring.middleware.lint :as m.lint]
-            [cheshire.generate :refer [add-encoder encode-str]]
             [cheshire.core :as json]))
 
 (defn handler

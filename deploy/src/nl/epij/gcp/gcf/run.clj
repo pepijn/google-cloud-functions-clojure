@@ -37,11 +37,11 @@
 (defonce server (atom nil))
 
 (defn compile-javac!
-  [{:keys [src-dir compile-path]}]
-  (javac/javac src-dir {:compile-path  compile-path
-                        :javac-options ["-target" "11"
-                                        "-source" "11"
-                                        "-Xlint:all"]}))
+  [{:keys [src-dir] :as opts}]
+  (let [options (merge-with concat opts {:javac-options ["-target" "11"
+                                                         "-source" "11"
+                                                         "-Xlint:all"]})]
+    (javac/javac src-dir options)))
 
 (defn entrypoint-jar!
   [{:keys [src-dir compile-path extra-paths class-path out-path manifest-class-path]
@@ -62,12 +62,9 @@
      :class-path     (str class-path ":" jar)}))
 
 (defn entrypoint-uberjar!
-  [{:keys [src-dir compile-path extra-paths class-path namespaces out-path]
-    :or   {src-dir      "src/main/java"
-           compile-path "target/uberjar/classes"
-           out-path     (str (bundle/make-out-path 'uberjar nil))
-           extra-paths  []
-           class-path   (->> (jcp/system-classpath) (str/join ":"))}
+  [{:keys [compile-path namespaces out-path]
+    :or   {compile-path "target/uberjar/classes"
+           out-path     (str (bundle/make-out-path 'uberjar nil))}
     :as   opts}]
   (let [uberjar-path       (io/file (str out-path "/output/libs/uberjar.jar"))
         invoker-deps       '{com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}

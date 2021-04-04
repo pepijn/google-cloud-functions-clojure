@@ -1,5 +1,3 @@
-package functions;
-
 import nl.epij.gcp.gcf.RingHttpFunction;
 
 public class JsonHttpEcho extends RingHttpFunction {

@@ -6,7 +6,7 @@
                                                    :sha       "c7ac22e6bd3057eb1542444ffee64ee770cb4302"
                                                    :deps/root "deploy"}}
                        :exec-fn    nl.epij.gcp.gcf.run/run-server!
-                       :exec-args  {:entrypoint   functions.JsonHttpEcho
+                       :exec-args  {:entrypoint   JsonHttpEcho
                                     :mode         :uberjar
                                     :src-dir      "src/java"
                                     :compile-path "target/jar/classes"}}}}
