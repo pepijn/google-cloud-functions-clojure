@@ -8,7 +8,8 @@
             [clojure.string :as str]
             [clojure.java.io :as io]
             [badigeon.bundle :as bundle]
-            [clojure.edn :as edn])
+            [clojure.edn :as edn]
+            [badigeon.classpath :as classpath])
   (:import (java.lang Process)))
 
 (defn run-clj!
@@ -107,14 +108,17 @@
     :or   {aliases  []
            out-path (str (bundle/make-out-path 'uberjar nil))}
     :as   opts}]
-  (depstar/build-jar {:jar        out-path
-                      :aliases    aliases
-                      :compile-ns (if namespaces
-                                    namespaces
-                                    (-> (merge {:compile-path compile-path} opts)
-                                        (get-clj-nss!)
-                                        :namespaces))
-                      :exclude    [".+\\.(clj|dylib|dll|so)$"]})
+  (let [cp (str (classpath/make-classpath {:aliases aliases})
+                ":"
+                compile-path)]
+    (depstar/build-jar {:jar        out-path
+                        :classpath  cp
+                        :compile-ns (if namespaces
+                                      namespaces
+                                      (-> (merge {:compile-path compile-path} opts)
+                                          (get-clj-nss!)
+                                          :namespaces))
+                        :exclude    [".+\\.(clj|dylib|dll|so)$"]}))
   out-path)
 
 (comment

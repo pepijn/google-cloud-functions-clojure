@@ -3,7 +3,8 @@
   (:require [nl.epij.gcp.gcf.run :as run]
             [clojure.java.io :as io]
             [badigeon.classpath :as classpath]
-            [clojure.tools.deps.alpha :as deps])
+            [clojure.tools.deps.alpha :as deps]
+            [clojure.string :as str])
   (:import [java.nio.file Files Path]
            [java.nio.file.attribute FileAttribute]
            [java.util.zip ZipFile]
@@ -23,12 +24,12 @@
 (defn compiled-java!
   [body]
   (with-tmp-dir
-   (fn [tmp-dir]
+   (fn [java-compile-dir]
      (let [class-path (classpath/make-classpath {:aliases [:example]})]
        (try (run/compile-javac! {:src-dir       "../example/src/java"
-                                 :compile-path  tmp-dir
+                                 :compile-path  java-compile-dir
                                  :javac-options ["-cp" class-path]})
-            (body (.toFile tmp-dir)))))))
+            (body (.toFile java-compile-dir)))))))
 
 (deftest java-compilation
   (is (= (compiled-java! (fn [dir] (->> dir (.listFiles) (mapv #(.getName %)))))
@@ -63,9 +64,8 @@
    (fn [tmp-dir]
      (compiled-java!
       (fn [compile-path]
-        (let [jar-path (io/file (.toFile tmp-dir) "entrypoint-uberjar.jar")
-              deps     (deps/slurp-deps (io/file "../example/deps.edn"))
-              options  (get-in deps [:aliases :run-local :exec-args])]
+        (let [jar-path (io/file (.toFile tmp-dir) "uberjar.jar")
+              options  '{:entrypoint JsonHttpEcho}]
           (run/entrypoint-uberjar2! (merge options
                                            {:out-path     (str jar-path)
                                             :aliases      [:example]
@@ -74,4 +74,5 @@
 
 (deftest entrypoint-uberjar-generation
   (is (= (count (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %))))
-         21113)))
+         21114)))
+
