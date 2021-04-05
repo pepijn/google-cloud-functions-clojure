@@ -17,4 +17,5 @@
   :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
                                     :username      :env/clojars_user
                                     :password      :env/clojars_pass
-                                    :sign-releases false}]])
+                                    :sign-releases false}]]
+  :plugins [[lein-cljfmt "0.7.0"]])
