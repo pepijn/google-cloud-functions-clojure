@@ -1,13 +1,9 @@
 (ns nl.epij.gcp.gcf.run
   (:require [badigeon.javac :as javac]
-            [badigeon.jar :as jar]
             [babashka.process :as process]
-            [clojure.java.classpath :as jcp]
             [hf.depstar.uberjar :as depstar]
             [clojure.tools.deps.alpha]
             [clojure.string :as str]
-            [clojure.java.io :as io]
-            [badigeon.bundle :as bundle]
             [clojure.edn :as edn]
             [badigeon.classpath :as classpath])
   (:import (java.lang Process)))
@@ -33,10 +29,6 @@
         {::keys [handler-ns adapter-ns]} (edn/read-string out)]
     (assoc proc :namespaces [handler-ns adapter-ns])))
 
-(comment (get-clj-nss! {:entrypoint   'Entrypoint
-                        :compile-path "target/uberjar/development/classes"})
-         )
-
 (defonce server (atom nil))
 
 (defn compile-javac!
@@ -46,7 +38,7 @@
                                                          "-Xlint:all"]})]
     (javac/javac src-dir options)))
 
-(defn entrypoint-uberjar2!
+(defn build-jar!
   [{:keys [compile-path aliases namespaces out-path]
     :or   {aliases []}
     :as   opts}]
@@ -69,7 +61,7 @@
   (assert (symbol? entrypoint) "Entrypoint should be a symbol")
   (doseq [path java-paths]
     (compile-javac! {:src-dir path :compile-path compile-path}))
-  (entrypoint-uberjar2! {:entrypoint   entrypoint
+  (build-jar! {:entrypoint             entrypoint
                          :compile-path compile-path
                          :out-path     jar-path}))
 

@@ -2,9 +2,7 @@
   (:require [clojure.test :refer [deftest is]])
   (:require [nl.epij.gcp.gcf.run :as run]
             [clojure.java.io :as io]
-            [badigeon.classpath :as classpath]
-            [clojure.tools.deps.alpha :as deps]
-            [clojure.string :as str])
+            [badigeon.classpath :as classpath])
   (:import [java.nio.file Files Path]
            [java.nio.file.attribute FileAttribute]
            [java.util.zip ZipFile]
@@ -47,8 +45,8 @@
       (fn [compile-path]
         (let [jar-path (io/file (.toFile tmp-dir) "uberjar.jar")
               options  '{:entrypoint JsonHttpEcho}]
-          (run/entrypoint-uberjar2! (merge options
-                                           {:out-path     (str jar-path)
+          (run/build-jar! (merge options
+                                 {:out-path     (str jar-path)
                                             :aliases      [:example]
                                             :compile-path compile-path}))
           (body jar-path)))))))
