@@ -46,63 +46,6 @@
                                                          "-Xlint:all"]})]
     (javac/javac src-dir options)))
 
-(defn entrypoint-jar!
-  [{:keys [src-dir compile-path extra-paths class-path out-path manifest-class-path]
-    :or   {src-dir             "src/main/java"
-           compile-path        "target/jar/classes"
-           extra-paths         []
-           manifest-class-path {}
-           class-path          (->> (jcp/system-classpath) (str/join ":"))}
-    :as   opts}]
-  (compile-javac! (merge {:src-dir src-dir :compile-path compile-path} opts))
-  (let [jar (jar/jar 'entrypoint
-                     nil
-                     {:allow-all-dependencies? true
-                      :out-path                out-path
-                      :paths                   (conj extra-paths compile-path)
-                      :manifest                {"Class-Path" manifest-class-path}})]
-    {:entrypoint-jar jar
-     :class-path     (str class-path ":" jar)}))
-
-(defn entrypoint-jar2!
-  [{:keys [compile-path extra-paths class-path out-path manifest-class-path]
-    :or   {compile-path        "target/jar/classes"
-           extra-paths         []
-           manifest-class-path {}
-           class-path          (->> (jcp/system-classpath) (str/join ":"))}}]
-  (let [jar (jar/jar 'entrypoint
-                     nil
-                     {:allow-all-dependencies? true
-                      :out-path                out-path
-                      :paths                   (conj extra-paths compile-path)
-                      :manifest                {"Class-Path" manifest-class-path}})]
-    {:entrypoint-jar jar
-     :class-path     (str class-path ":" jar)}))
-
-(defn entrypoint-uberjar!
-  [{:keys [compile-path namespaces out-path]
-    :or   {compile-path "target/uberjar/classes"
-           out-path     (str (bundle/make-out-path 'uberjar nil))}
-    :as   opts}]
-  (let [uberjar-path       (io/file (str out-path "/output/libs/uberjar.jar"))
-        invoker-deps       '{com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}
-        invoker-class-path (-> (run-clj! ["-Sdeps" {:aliases {:invoker {:replace-deps  invoker-deps
-                                                                        :replace-paths []}}}
-                                          "-A:invoker"
-                                          "-Spath"])
-                               :out
-                               str/trim)
-        {:keys [entrypoint-jar]} (entrypoint-jar! (assoc opts :out-path (str out-path "/output/entrypoint.jar")
-                                                              :manifest-class-path "libs/uberjar.jar"))]
-    (depstar/build-jar {:jar        uberjar-path
-                        :compile-ns (if namespaces
-                                      namespaces
-                                      (-> (merge {:compile-path compile-path} opts)
-                                          (get-clj-nss!)
-                                          :namespaces))
-                        :exclude    [".+\\.(clj|dylib|dll|so)$"]})
-    {:class-path (str uberjar-path ":" entrypoint-jar ":" invoker-class-path)}))
-
 (defn entrypoint-uberjar2!
   [{:keys [compile-path aliases namespaces out-path]
     :or   {aliases []}
@@ -121,29 +64,28 @@
   out-path)
 
 (defn assemble-jar!
-  [{:nl.epij.gcf/keys [entrypoint java-paths compile-path]}]
+  [{:nl.epij.gcf/keys [entrypoint java-paths compile-path jar-path]}]
+  (assert entrypoint "Supply an entrypoint")
+  (assert (symbol? entrypoint) "Entrypoint should be a symbol")
   (doseq [path java-paths]
     (compile-javac! {:src-dir path :compile-path compile-path}))
   (entrypoint-uberjar2! {:entrypoint   entrypoint
-                         :compile-path compile-path}))
+                         :compile-path compile-path
+                         :out-path     jar-path}))
 
 (defn start-server!
-  [{:keys [entrypoint mode]
-    :or   {}
-    :as   opts}]
+  [{:nl.epij.gcf/keys [jar-path entrypoint]
+    :as               opts}]
   (assert (nil? @server) "Server already running")
-  (assert entrypoint "Supply an entrypoint")
-  (assert (symbol? entrypoint) "Entrypoint should be a symbol")
-  (let [{class-path' :class-path}
-        (case mode
-          :jar (entrypoint-jar! opts)
-          :uberjar (entrypoint-uberjar! opts))
-        proc
-        (process/process ["java"
-                          "--class-path" class-path'
-                          "com.google.cloud.functions.invoker.runner.Invoker"
-                          "--target" entrypoint]
-                         {:out :inherit :err :inherit})]
+  (assemble-jar! opts)
+  (let [deps-map   {:deps  '{com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}
+                    :paths [jar-path]}
+        class-path (classpath/make-classpath {:deps-map deps-map})
+        proc       (process/process ["java"
+                                     "--class-path" class-path
+                                     "com.google.cloud.functions.invoker.runner.Invoker"
+                                     "--target" entrypoint]
+                                    {:out :inherit :err :inherit})]
     (reset! server proc)))
 
 (defn stop-server!

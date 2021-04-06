@@ -4,9 +4,17 @@
            ring/ring-devel                            {:mvn/version "1.8.2"}}
  :paths   ["src/clojure" "src/java"]
  :aliases {:assemble {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
-                                                       :sha       "c7ac22e6bd3057eb1542444ffee64ee770cb4302"
+                                                       :sha       "86f74554735c6fe1c559b9a3e6448774ba0248bd"
                                                        :deps/root "deploy"}}
                       :exec-fn    nl.epij.gcp.gcf.run/assemble-jar!
+                      :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
+                                   :nl.epij.gcf/java-paths   ["src/java"]
+                                   :nl.epij.gcf/compile-path "target/classes"
+                                   :nl.epij.gcf/jar-path     "target/artifacts/application.jar"}}
+           :run      {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
+                                                       :sha       "86f74554735c6fe1c559b9a3e6448774ba0248bd"
+                                                       :deps/root "deploy"}}
+                      :exec-fn    nl.epij.gcp.gcf.run/run-server!
                       :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
                                    :nl.epij.gcf/java-paths   ["src/java"]
                                    :nl.epij.gcf/compile-path "target/classes"

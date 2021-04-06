@@ -8,4 +8,11 @@
                       :nl.epij.gcf/compile-path "target/classes"
                       :nl.epij.gcf/jar-path     "target/artifacts/application.jar"})
 
+ (run/start-server! '{:nl.epij.gcf/entrypoint   JsonHttpEcho
+                      :nl.epij.gcf/java-paths   ["src/java"]
+                      :nl.epij.gcf/compile-path "target/classes"
+                      :nl.epij.gcf/jar-path     "target/artifacts/application.jar"})
+
+ (run/stop-server!)
+
  )
