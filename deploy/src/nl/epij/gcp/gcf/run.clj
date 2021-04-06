@@ -39,12 +39,12 @@
     (javac/javac src-dir options)))
 
 (defn build-jar!
-  [{:keys [compile-path aliases namespaces out-path]
+  [{:keys [compile-path aliases namespaces out-path extra-paths]
     :or   {aliases []}
     :as   opts}]
-  (let [cp (str (classpath/make-classpath {:aliases aliases})
-                ":"
-                compile-path)]
+  (let [cp (str/join ":" (concat [(classpath/make-classpath {:aliases aliases})
+                                  compile-path]
+                                 extra-paths))]
     (depstar/build-jar {:jar        out-path
                         :classpath  cp
                         :compile-ns (if namespaces
@@ -56,14 +56,15 @@
   out-path)
 
 (defn assemble-jar!
-  [{:nl.epij.gcf/keys [entrypoint java-paths compile-path jar-path]}]
+  [{:nl.epij.gcf/keys [entrypoint java-paths compile-path jar-path extra-paths]}]
   (assert entrypoint "Supply an entrypoint")
   (assert (symbol? entrypoint) "Entrypoint should be a symbol")
   (doseq [path java-paths]
     (compile-javac! {:src-dir path :compile-path compile-path}))
-  (build-jar! {:entrypoint             entrypoint
-                         :compile-path compile-path
-                         :out-path     jar-path}))
+  (build-jar! {:entrypoint   entrypoint
+               :compile-path compile-path
+               :out-path     jar-path
+               :extra-paths  extra-paths}))
 
 (defn start-server!
   [{:nl.epij.gcf/keys [jar-path entrypoint]
