@@ -16,3 +16,4 @@ pom.xml.asc
 .nrepl-port
 /.clj-kondo/.cache
 /deploy/pom.xml
+/example/pom.xml

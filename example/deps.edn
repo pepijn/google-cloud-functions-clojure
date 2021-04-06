@@ -1,12 +1,13 @@
-{:deps    {nl.epij/google-cloud-function-ring-adapter {:mvn/version "0.1.0-SNAPSHOT"}
+{:deps    {org.clojure/clojure                        {:mvn/version "1.10.3"}
+           nl.epij/google-cloud-function-ring-adapter {:mvn/version "0.1.0-SNAPSHOT"}
            ring/ring-json                             {:mvn/version "0.5.0"}
            ring/ring-devel                            {:mvn/version "1.8.2"}}
  :paths   ["src/clojure" "src/java"]
- :aliases {:run-local {:extra-deps {deploy/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
-                                                   :sha       "c7ac22e6bd3057eb1542444ffee64ee770cb4302"
-                                                   :deps/root "deploy"}}
-                       :exec-fn    nl.epij.gcp.gcf.run/run-server!
-                       :exec-args  {:entrypoint   JsonHttpEcho
-                                    :mode         :uberjar
-                                    :src-dir      "src/java"
-                                    :compile-path "target/jar/classes"}}}}
+ :aliases {:assemble {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
+                                                       :sha       "c7ac22e6bd3057eb1542444ffee64ee770cb4302"
+                                                       :deps/root "deploy"}}
+                      :exec-fn    nl.epij.gcp.gcf.run/assemble-jar!
+                      :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
+                                   :nl.epij.gcf/java-paths   ["src/java"]
+                                   :nl.epij.gcf/compile-path "target/classes"
+                                   :nl.epij.gcf/jar-path     "target/artifacts/application.jar"}}}}

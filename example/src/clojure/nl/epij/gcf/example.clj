@@ -1,4 +1,4 @@
-(ns nl.epij.gcf-ring-adapter-example
+(ns nl.epij.gcf.example
   (:require [ring.middleware.json :as m.json]
             [ring.middleware.lint :as m.lint]
             [cheshire.core :as json]))

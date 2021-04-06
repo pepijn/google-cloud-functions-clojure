@@ -105,8 +105,7 @@
 
 (defn entrypoint-uberjar2!
   [{:keys [compile-path aliases namespaces out-path]
-    :or   {aliases  []
-           out-path (str (bundle/make-out-path 'uberjar nil))}
+    :or   {aliases []}
     :as   opts}]
   (let [cp (str (classpath/make-classpath {:aliases aliases})
                 ":"
@@ -121,9 +120,12 @@
                         :exclude    [".+\\.(clj|dylib|dll|so)$"]}))
   out-path)
 
-(comment
-
- )
+(defn assemble-jar!
+  [{:nl.epij.gcf/keys [entrypoint java-paths compile-path]}]
+  (doseq [path java-paths]
+    (compile-javac! {:src-dir path :compile-path compile-path}))
+  (entrypoint-uberjar2! {:entrypoint   entrypoint
+                         :compile-path compile-path}))
 
 (defn start-server!
   [{:keys [entrypoint mode]

@@ -75,4 +75,18 @@
 (deftest entrypoint-uberjar-generation
   (is (= (count (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %))))
          21114)))
+(comment
 
+ (let [config '{:nl.epij.gcp.gcf/entrypoint       JsonHttpEcho
+                :nl.epij.gcp.gcf/entrypoint-src   ["../example/src/java"]
+                :nl.epij.gcp.gcf/entrypoint-alias [:example]}
+
+       {:nl.epij.gcp.gcf/keys [entrypoint
+                               entrypoint-src
+                               entrypoint-alias]}
+       config
+       ]
+   (run/compile-javac! (conj {:src-dir entrypoint-src}
+                             (when-not (empty? entrypoint-alias) {:javac-options ["-cp"]}))))
+
+ )
