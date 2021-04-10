@@ -2,7 +2,7 @@
   (:require
     [badigeon.classpath :as classpath]
     [clojure.java.io :as io]
-    [clojure.test :refer [deftest is]]
+    [clojure.test :refer [deftest is testing]]
     [helpers :refer [with-tmp-dir list-files zip-file files-in-zip]]
     [nl.epij.gcf :as gcf]
     [nl.epij.gcf.deploy :as deploy]))
@@ -38,7 +38,11 @@
             (body jar-path)))))))
 
 
-(deftest entrypoint-uberjar-generation
+(deftest uberjar-assembly
   (let [files (files-in-zip (assembled-uberjar! zip-file))]
-    (is (contains? files "JsonHttpEcho.class"))
-    (is (contains? files "nl/epij/gcf/example__init.class"))))
+    (testing "contains the Java entrypoint that Google Cloud Functions will call (application class path)"
+      (is (contains? files "JsonHttpEcho.class")))
+    (testing "contains the application ring handler (application class path)"
+      (is (contains? files "nl/epij/gcf/example__init.class")))
+    (testing "contains the ring adapter (library class path)"
+      (is (contains? files "nl/epij/gcf/ring__init.class")))))
