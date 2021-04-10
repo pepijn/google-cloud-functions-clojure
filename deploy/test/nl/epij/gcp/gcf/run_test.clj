@@ -35,7 +35,7 @@
 
 (defn files-in-zip
   [^ZipFile f]
-  (->> f (.entries) iterator-seq (mapv str)))
+  (->> f (.entries) iterator-seq (into #{} (map str))))
 
 (defn compiled-entrypoint-uberjar!
   [body]
@@ -47,10 +47,11 @@
               options  '{:entrypoint JsonHttpEcho}]
           (run/build-jar! (merge options
                                  {:out-path     (str jar-path)
-                                            :aliases      [:example]
-                                            :compile-path compile-path}))
+                                  :aliases      [:example]
+                                  :compile-path compile-path}))
           (body jar-path)))))))
 
 (deftest entrypoint-uberjar-generation
-  (is (= (count (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %))))
-         21116)))
+  (let [files (files-in-zip (compiled-entrypoint-uberjar! #(ZipFile. ^File %)))]
+    (is (contains? files "JsonHttpEcho.class"))
+    (is (contains? files "nl/epij/gcf/example__init.class"))))
