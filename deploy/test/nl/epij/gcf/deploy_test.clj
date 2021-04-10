@@ -28,7 +28,7 @@
       (fn [compile-path]
         (let [jar-path (io/file tmp-dir "uberjar.jar")]
           (deploy/build-jar! {::gcf/entrypoint   'JsonHttpEcho
-                              ::gcf/out-path     (str jar-path)
+                              ::gcf/jar-path     (str jar-path)
                               ::gcf/aliases      [:example]
                               ::gcf/compile-path compile-path})
           (body jar-path)))))))

@@ -41,13 +41,13 @@
     (javac/javac src-dir options)))
 
 (defn build-jar!
-  [{::gcf/keys [compile-path aliases namespaces out-path extra-paths]
+  [{::gcf/keys [compile-path aliases namespaces jar-path extra-paths]
     :or        {aliases []}
     :as        opts}]
   (let [cp (str/join ":" (concat [(classpath/make-classpath {:aliases aliases})
                                   compile-path]
                                  extra-paths))]
-    (depstar/build-jar {:jar        out-path
+    (depstar/build-jar {:jar        jar-path
                         :classpath  cp
                         :compile-ns (if namespaces
                                       namespaces
@@ -55,18 +55,15 @@
                                           (get-clj-nss!)
                                           :namespaces))
                         :exclude    [".+\\.(clj|dylib|dll|so)$"]}))
-  out-path)
+  jar-path)
 
 (defn assemble-jar!
-  [{::gcf/keys [entrypoint java-paths compile-path jar-path extra-paths]}]
+  [{::gcf/keys [entrypoint java-paths compile-path] :as opts}]
   (assert entrypoint "Supply an entrypoint")
   (assert (symbol? entrypoint) "Entrypoint should be a symbol")
   (doseq [path java-paths]
-    (compile-javac! {:src-dir path :compile-path compile-path}))
-  (build-jar! {:entrypoint   entrypoint
-               :compile-path compile-path
-               :out-path     jar-path
-               :extra-paths  extra-paths}))
+    (compile-javac! {::gcf/src-dir path ::gcf/compile-path compile-path}))
+  (build-jar! opts))
 
 (defonce server (atom nil))
 
