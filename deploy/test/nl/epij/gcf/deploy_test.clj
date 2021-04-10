@@ -13,10 +13,10 @@
   (with-tmp-dir
     (fn [java-compile-dir]
       (let [class-path (classpath/make-classpath {:aliases [:example]})]
-        (try (deploy/compile-javac! {::gcf/src-dir       "../example/src/java"
-                                     ::gcf/compile-path  java-compile-dir
-                                     ::gcf/javac-options ["-cp" class-path]})
-             (body java-compile-dir))))))
+        (deploy/compile-javac! {::gcf/src-dir       "../example/src/java"
+                                ::gcf/compile-path  java-compile-dir
+                                ::gcf/javac-options ["-cp" class-path]})
+        (body java-compile-dir)))))
 
 
 (deftest java-compilation
