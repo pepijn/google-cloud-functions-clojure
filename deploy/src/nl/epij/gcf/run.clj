@@ -1,4 +1,4 @@
-(ns nl.epij.gcp.gcf.run
+(ns nl.epij.gcf.run
   (:require [badigeon.javac :as javac]
             [babashka.process :as process]
             [hf.depstar.uberjar :as depstar]
