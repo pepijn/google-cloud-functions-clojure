@@ -4,7 +4,7 @@ Here's how you would run this HTTP echo JSON pretty printer service:
 
 #+name: start-server
 #+begin_src sh :eval no
-PORT=13337 clojure -X:run-local
+PORT=13337 clojure -X:run
 #+end_src
 
 #+begin_src sh :results verbatim :noweb yes :exports none

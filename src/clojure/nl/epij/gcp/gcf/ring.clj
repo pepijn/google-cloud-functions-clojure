@@ -1,6 +1,6 @@
 (ns nl.epij.gcp.gcf.ring
   (:require [clojure.string :as str]
-            [nl.epij.gcp.gcf.env :as env]
+            [nl.epij.gcf.env :as env]
             [clojure.java.io :as io])
   (:import (com.google.cloud.functions HttpRequest HttpResponse)
            (java.io BufferedWriter)
