@@ -1,4 +1,4 @@
-(ns nl.epij.gcp.gcf.body)
+(ns nl.epij.pubsub.body)
 
 
 (defn body

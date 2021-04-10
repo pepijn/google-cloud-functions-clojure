@@ -1,4 +1,4 @@
-(ns nl.epij.gcp.gcf.message)
+(ns nl.epij.pubsub.message)
 
 
 (defn message

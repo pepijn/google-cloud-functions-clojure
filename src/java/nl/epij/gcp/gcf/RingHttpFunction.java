@@ -17,7 +17,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
  * clojure.core available in the class path.
  */
 public abstract class RingHttpFunction implements HttpFunction {
-    private static final String adapterNs = "nl.epij.gcp.gcf.ring";
+    private static final String adapterNs = "nl.epij.gcf.ring";
     private static final String adapterFn = "adapter";
 
     /**

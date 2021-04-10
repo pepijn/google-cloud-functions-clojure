@@ -34,10 +34,10 @@
             :get
 
             :body
-            {:nl.epij.gcp.gcf.body/message      {:nl.epij.gcp.gcf.message/data         {"a" 1337
-                                                                                        "b" 42}
-                                                 :nl.epij.gcp.gcf.message/message-id   "12345"
-                                                 :nl.epij.gcp.gcf.message/publish-time "2021-03-28T22:05:24.662Z"}
-             :nl.epij.gcp.gcf.body/subscription "projects/<project-id>/subscriptions/<subscription-id>"}}
+            {:nl.epij.pubsub.body/message      {:nl.epij.pubsub.message/data         {"a" 1337
+                                                                                      "b" 42}
+                                                :nl.epij.pubsub.message/message-id   "12345"
+                                                :nl.epij.pubsub.message/publish-time "2021-03-28T22:05:24.662Z"}
+             :nl.epij.pubsub.body/subscription "projects/<project-id>/subscriptions/<subscription-id>"}}
            response))
-    (is (= data (-> response :body :nl.epij.gcp.gcf.body/message :nl.epij.gcp.gcf.message/data)))))
+    (is (= data (-> response :body :nl.epij.pubsub.body/message :nl.epij.pubsub.message/data)))))

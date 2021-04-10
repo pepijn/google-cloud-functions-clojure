@@ -1,4 +1,4 @@
-(ns nl.epij.gcp.gcf.ring
+(ns nl.epij.gcf.ring
   (:require
     [clojure.java.io :as io]
     [clojure.string :as str]

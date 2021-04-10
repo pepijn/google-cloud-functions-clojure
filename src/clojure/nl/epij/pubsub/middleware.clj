@@ -1,10 +1,10 @@
-(ns nl.epij.ring.middleware
+(ns nl.epij.pubsub.middleware
   (:require
     [cheshire.core :as json]
     [clojure.string :as str]
-    [nl.epij.gcp.gcf.body :as body]
     [nl.epij.gcp.gcf.log :as log]
-    [nl.epij.gcp.gcf.message :as message])
+    [nl.epij.pubsub.body :as body]
+    [nl.epij.pubsub.message :as message])
   (:import
     (java.util
       Base64)))
