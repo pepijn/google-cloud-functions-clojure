@@ -27,8 +27,8 @@
 
 
 (defn zip-file
-  [file]
-  (ZipFile. ^File file))
+  [^File file]
+  (ZipFile. file))
 
 
 (defn files-in-zip

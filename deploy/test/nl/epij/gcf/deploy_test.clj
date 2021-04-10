@@ -39,7 +39,7 @@
 
 
 (deftest uberjar-assembly
-  (let [files (files-in-zip (assembled-uberjar! zip-file))]
+  (let [files (assembled-uberjar! (comp files-in-zip zip-file))]
     (testing "contains the Java entrypoint that Google Cloud Functions will call (application class path)"
       (is (contains? files "JsonHttpEcho.class")))
     (testing "contains the application ring handler (application class path)"
