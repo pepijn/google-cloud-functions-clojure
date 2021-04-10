@@ -2,4 +2,4 @@
            clojure.test.check.clojure-test/defspec clojure.core/def}
  :linters {:single-key-in                {:level :error}
            :unsorted-required-namespaces {:level :error}
-           :missing-docstring            {:level :warning}}}
+           #_#_:missing-docstring        {:level :warning}}}

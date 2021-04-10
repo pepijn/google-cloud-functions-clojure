@@ -1,8 +1,8 @@
-(ns nl.epij.ring.middleware-test
+(ns nl.epij.pubsub.middleware-test
   (:require
     [cheshire.core :as json]
     [clojure.test :refer [deftest is]]
-    [nl.epij.ring.middleware :as mw])
+    [nl.epij.pubsub.middleware :as mw])
   (:import
     (java.util
       Base64)))

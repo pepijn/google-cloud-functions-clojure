@@ -1,4 +1,4 @@
-(ns nl.epij.gcp.gcf.ring-test
+(ns nl.epij.gcf.ring-test
   (:require
     [clojure.java.io :as io]
     [clojure.spec.alpha :as s]
@@ -8,7 +8,7 @@
     [clojure.test.check.clojure-test :as tct]
     [clojure.test.check.generators :as gen]
     [clojure.test.check.properties :as props]
-    [nl.epij.gcp.gcf.ring :as ring]
+    [nl.epij.gcf.ring :as ring]
     [ring.core.spec]
     [ring.middleware.lint :as lint])
   (:import
