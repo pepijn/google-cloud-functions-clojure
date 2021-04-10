@@ -1,4 +1,4 @@
-(ns nl.epij.gcp.gcf.env)
+(ns nl.epij.gcf.env)
 
 (defn extract-env-vars!
   "Extract vars set by the GCF runtime: https://cloud.google.com/functions/docs/env-var"
