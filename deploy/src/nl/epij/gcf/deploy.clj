@@ -5,10 +5,11 @@
             [clojure.tools.deps.alpha]
             [clojure.string :as str]
             [clojure.edn :as edn]
+            [nl.epij.gcf :as gcf]
             [badigeon.classpath :as classpath])
   (:import (java.lang Process)))
 
-(defn run-clj!
+(defn- run-clj!
   [args]
   (let [args' (concat ["clojure"] args)
         {:keys [err exit] :as proc}
@@ -17,8 +18,8 @@
     (assert (zero? exit) (str/join " " args'))
     proc))
 
-(defn get-clj-nss!
-  [{:keys [compile-path entrypoint]}]
+(defn- get-clj-nss!
+  [{::gcf/keys [compile-path entrypoint]}]
   ;; TODO: replace with :aliases
   (let [deps {:aliases {:java {:replace-deps  '{nl.epij/google-cloud-function-ring-adapter {:mvn/version "0.1.0-SNAPSHOT"}}
                                :replace-paths [(str compile-path)]}}}
@@ -29,19 +30,20 @@
         {::keys [handler-ns adapter-ns]} (edn/read-string out)]
     (assoc proc :namespaces [handler-ns adapter-ns])))
 
-(defonce server (atom nil))
-
 (defn compile-javac!
-  [{:keys [src-dir] :as opts}]
-  (let [options (merge-with concat opts {:javac-options ["-target" "11"
-                                                         "-source" "11"
-                                                         "-Xlint:all"]})]
+  [{::gcf/keys [src-dir javac-options compile-path]}]
+  (let [options (merge-with concat
+                            {:javac-options javac-options
+                             :compile-path  compile-path}
+                            {:javac-options ["-target" "11"
+                                             "-source" "11"
+                                             "-Xlint:all"]})]
     (javac/javac src-dir options)))
 
 (defn build-jar!
-  [{:keys [compile-path aliases namespaces out-path extra-paths]
-    :or   {aliases []}
-    :as   opts}]
+  [{::gcf/keys [compile-path aliases namespaces out-path extra-paths]
+    :or        {aliases []}
+    :as        opts}]
   (let [cp (str/join ":" (concat [(classpath/make-classpath {:aliases aliases})
                                   compile-path]
                                  extra-paths))]
@@ -49,14 +51,14 @@
                         :classpath  cp
                         :compile-ns (if namespaces
                                       namespaces
-                                      (-> (merge {:compile-path compile-path} opts)
+                                      (-> (merge {::gcf/compile-path compile-path} opts)
                                           (get-clj-nss!)
                                           :namespaces))
                         :exclude    [".+\\.(clj|dylib|dll|so)$"]}))
   out-path)
 
 (defn assemble-jar!
-  [{:nl.epij.gcf/keys [entrypoint java-paths compile-path jar-path extra-paths]}]
+  [{::gcf/keys [entrypoint java-paths compile-path jar-path extra-paths]}]
   (assert entrypoint "Supply an entrypoint")
   (assert (symbol? entrypoint) "Entrypoint should be a symbol")
   (doseq [path java-paths]
@@ -66,9 +68,11 @@
                :out-path     jar-path
                :extra-paths  extra-paths}))
 
+(defonce server (atom nil))
+
 (defn start-server!
-  [{:nl.epij.gcf/keys [jar-path entrypoint]
-    :as               opts}]
+  [{::gcf/keys [jar-path entrypoint]
+    :as        opts}]
   (assert (nil? @server) "Server already running")
   (assemble-jar! opts)
   (let [deps-map   {:deps  '{com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}}
