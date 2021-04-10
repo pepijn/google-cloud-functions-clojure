@@ -1,10 +1,17 @@
 (ns nl.epij.gcp.gcf.ring
-  (:require [clojure.string :as str]
-            [nl.epij.gcf.env :as env]
-            [clojure.java.io :as io])
-  (:import (com.google.cloud.functions HttpRequest HttpResponse)
-           (java.io BufferedWriter)
-           [java.util Optional]))
+  (:require
+    [clojure.java.io :as io]
+    [clojure.string :as str]
+    [nl.epij.gcf.env :as env])
+  (:import
+    (com.google.cloud.functions
+      HttpRequest
+      HttpResponse)
+    (java.io
+      BufferedWriter)
+    (java.util
+      Optional)))
+
 
 (defn process-response!
   [{:keys [status message headers body]} http-response]
@@ -23,6 +30,7 @@
             :else
             (io/copy body writer))
       (.close writer))))
+
 
 (defn request->ring
   [^HttpRequest http-request port]
@@ -51,6 +59,7 @@
      :scheme         (keyword x-forwarded-proto)
 
      :protocol       "N/A"}))
+
 
 (defn adapter
   [^HttpRequest http-request ^HttpResponse http-response handler]

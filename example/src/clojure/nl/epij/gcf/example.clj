@@ -1,7 +1,9 @@
 (ns nl.epij.gcf.example
-  (:require [ring.middleware.json :as m.json]
-            [ring.middleware.lint :as m.lint]
-            [cheshire.core :as json]))
+  (:require
+    [cheshire.core :as json]
+    [ring.middleware.json :as m.json]
+    [ring.middleware.lint :as m.lint]))
+
 
 (defn handler
   [req]
@@ -12,6 +14,7 @@
     {:status  200
      :headers {"Content-Type" "application/json"}
      :body    (str body "\n")}))
+
 
 (def app
   (-> handler

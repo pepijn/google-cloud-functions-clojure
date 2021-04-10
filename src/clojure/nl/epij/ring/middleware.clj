@@ -1,10 +1,14 @@
 (ns nl.epij.ring.middleware
-  (:require [cheshire.core :as json]
-            [nl.epij.gcp.gcf.body :as body]
-            [nl.epij.gcp.gcf.message :as message]
-            [nl.epij.gcp.gcf.log :as log]
-            [clojure.string :as str])
-  (:import [java.util Base64]))
+  (:require
+    [cheshire.core :as json]
+    [clojure.string :as str]
+    [nl.epij.gcp.gcf.body :as body]
+    [nl.epij.gcp.gcf.log :as log]
+    [nl.epij.gcp.gcf.message :as message])
+  (:import
+    (java.util
+      Base64)))
+
 
 (defn wrap-pubsub-data
   "Middleware that decodes the Base64 data of the Pubsub message. Also parses the JSON.

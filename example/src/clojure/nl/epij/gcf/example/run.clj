@@ -1,5 +1,7 @@
 (ns nl.epij.gcf.example.run
-  (:require [nl.epij.gcp.gcf.run :as run]))
+  (:require
+    [nl.epij.gcp.gcf.run :as run]))
+
 
 (comment
 

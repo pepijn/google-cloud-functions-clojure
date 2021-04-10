@@ -1,13 +1,17 @@
 (ns nl.epij.gcf.deploy
-  (:require [badigeon.javac :as javac]
-            [babashka.process :as process]
-            [hf.depstar.uberjar :as depstar]
-            [clojure.tools.deps.alpha]
-            [clojure.string :as str]
-            [clojure.edn :as edn]
-            [nl.epij.gcf :as gcf]
-            [badigeon.classpath :as classpath])
-  (:import (java.lang Process)))
+  (:require
+    [babashka.process :as process]
+    [badigeon.classpath :as classpath]
+    [badigeon.javac :as javac]
+    [clojure.edn :as edn]
+    [clojure.string :as str]
+    [clojure.tools.deps.alpha]
+    [hf.depstar.uberjar :as depstar]
+    [nl.epij.gcf :as gcf])
+  (:import
+    (java.lang
+      Process)))
+
 
 (defn- run-clj!
   [args]
@@ -17,6 +21,7 @@
     (print err)
     (assert (zero? exit) (str/join " " args'))
     proc))
+
 
 (defn- get-clj-nss!
   [{::gcf/keys [compile-path entrypoint]}]
@@ -30,6 +35,7 @@
         {::keys [handler-ns adapter-ns]} (edn/read-string out)]
     (assoc proc :namespaces [handler-ns adapter-ns])))
 
+
 (defn compile-javac!
   [{::gcf/keys [src-dir javac-options compile-path]}]
   (let [options (merge-with concat
@@ -39,6 +45,7 @@
                                              "-source" "11"
                                              "-Xlint:all"]})]
     (javac/javac src-dir options)))
+
 
 (defn build-jar!
   [{::gcf/keys [compile-path aliases namespaces jar-path extra-paths]
@@ -57,6 +64,7 @@
                         :exclude    [".+\\.(clj|dylib|dll|so)$"]}))
   jar-path)
 
+
 (defn assemble-jar!
   [{::gcf/keys [entrypoint java-paths compile-path] :as opts}]
   (assert entrypoint "Supply an entrypoint")
@@ -65,7 +73,9 @@
     (compile-javac! {::gcf/src-dir path ::gcf/compile-path compile-path}))
   (build-jar! opts))
 
+
 (defonce server (atom nil))
+
 
 (defn start-server!
   [{::gcf/keys [jar-path entrypoint]
@@ -82,14 +92,17 @@
                                     {:out :inherit :err :inherit})]
     (reset! server proc)))
 
+
 (defn stop-server!
   []
   (.destroy ^Process (:proc @server))
   (reset! server nil))
 
+
 (defn run-server!
   [opts]
   @(start-server! opts))
+
 
 (comment
 

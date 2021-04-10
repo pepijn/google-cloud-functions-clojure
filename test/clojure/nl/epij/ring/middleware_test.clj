@@ -1,10 +1,15 @@
 (ns nl.epij.ring.middleware-test
-  (:require [clojure.test :refer [deftest is]])
-  (:require [nl.epij.ring.middleware :as mw]
-            [cheshire.core :as json])
-  (:import [java.util Base64]))
+  (:require
+    [cheshire.core :as json]
+    [clojure.test :refer [deftest is]]
+    [nl.epij.ring.middleware :as mw])
+  (:import
+    (java.util
+      Base64)))
+
 
 (set! *print-namespace-maps* false)
+
 
 (defn base-64-string
   [data]
@@ -12,6 +17,7 @@
        (.getBytes)
        (.encode (Base64/getEncoder))
        (String.)))
+
 
 (deftest wrap-pubsub-data
   (let [data        {"a" 1337 "b" 42}

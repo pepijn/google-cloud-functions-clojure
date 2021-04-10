@@ -1,49 +1,70 @@
 (ns nl.epij.gcp.gcf.ring-test
-  (:require [clojure.test :refer [deftest is testing]])
-  (:require [nl.epij.gcp.gcf.ring :as ring]
-            [clojure.java.io :as io]
-            [ring.middleware.lint :as lint]
-            [clojure.string :as str]
-            [clojure.spec.alpha :as s]
-            [ring.core.spec]
-            [clojure.test.check.properties :as props]
-            [clojure.test.check :as tc]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.clojure-test :as tct])
-  (:import [com.google.cloud.functions HttpRequest HttpResponse]
-           [java.util Optional]
-           [java.io ByteArrayOutputStream]))
+  (:require
+    [clojure.java.io :as io]
+    [clojure.spec.alpha :as s]
+    [clojure.string :as str]
+    [clojure.test :refer [deftest is testing]]
+    [clojure.test.check :as tc]
+    [clojure.test.check.clojure-test :as tct]
+    [clojure.test.check.generators :as gen]
+    [clojure.test.check.properties :as props]
+    [nl.epij.gcp.gcf.ring :as ring]
+    [ring.core.spec]
+    [ring.middleware.lint :as lint])
+  (:import
+    (com.google.cloud.functions
+      HttpRequest
+      HttpResponse)
+    (java.io
+      ByteArrayOutputStream)
+    (java.util
+      Optional)))
+
 
 (s/check-asserts true)
 
+
 (def handler
   (lint/wrap-lint (fn [_] {:status 200 :headers {}})))
+
 
 (defn ^HttpRequest create-request
   [{:keys [headers query method path body]}]
   (proxy [HttpRequest] []
     (getHeaders [] headers)
+
     (getQuery [] (Optional/ofNullable query))
+
     (getMethod [] (-> method name str/upper-case))
+
     (getPath [] path)
-    (getInputStream []
+
+    (getInputStream
+      []
       (io/input-stream (cond-> body
-                               (string? body)
-                               (.getBytes))))))
+                         (string? body)
+                         (.getBytes))))))
+
 
 (defn ^HttpResponse create-response
   [state stream]
   (proxy [HttpResponse] []
-    (appendHeader [header value]
+    (appendHeader
+      [header value]
       (swap! state update :headers #(merge % {header value})))
-    (setStatusCode [code message]
+
+    (setStatusCode
+      [code message]
       (swap! state assoc :status code)
       (swap! state assoc :message message))
+
     (getWriter [] (io/writer stream))))
+
 
 (defn config->request
   [config]
   (-> config create-request (ring/request->ring 8080)))
+
 
 (def request-config-gen
   (gen/hash-map :headers (gen/let [base         (s/gen :ring.request/headers)
@@ -58,38 +79,43 @@
                 :path (s/gen :ring.request/uri)
                 :body (s/gen :ring.request/body)))
 
+
 (def handler-config-gen
   (gen/hash-map :status (s/gen :ring.response/status)
                 :headers (s/gen :ring.response/headers)
                 :body (s/gen :ring.response/body)))
 
+
 (defn create-handler
   [config]
   (lint/wrap-lint (fn [_] config)))
 
+
 (def valid-request-prop
   (props/for-all [request-config request-config-gen
                   handler-config handler-config-gen]
-    (let [request  (config->request request-config)
-          handler  (create-handler handler-config)
-          response (handler request)]
-      (s/assert :ring/request request)
-      (s/assert :ring/response response))))
+                 (let [request  (config->request request-config)
+                       handler  (create-handler handler-config)
+                       response (handler request)]
+                   (s/assert :ring/request request)
+                   (s/assert :ring/response response))))
+
 
 (def valid-response-prop
   (props/for-all [handler-config handler-config-gen
                   message        (gen/one-of [gen/string (gen/return nil)])]
-    (let [os              (ByteArrayOutputStream.)
-          state           (atom {:headers {}})
-          response        (create-response state os)
-          handler-config' (-> handler-config (assoc :message message))
-          _               (ring/process-response! handler-config' response)
-          config'         (-> handler-config'
-                              (update :headers #(reduce-kv (fn [m k v] (assoc m k (str/join v))) {} %)))
-          output          (-> @state
-                              (assoc :body (.toString os)))]
-      ;; TODO: find a way to compare body (mind input stream etc.)
-      (= (dissoc config' :body) (dissoc output :body)))))
+                 (let [os              (ByteArrayOutputStream.)
+                       state           (atom {:headers {}})
+                       response        (create-response state os)
+                       handler-config' (-> handler-config (assoc :message message))
+                       _               (ring/process-response! handler-config' response)
+                       config'         (-> handler-config'
+                                           (update :headers #(reduce-kv (fn [m k v] (assoc m k (str/join v))) {} %)))
+                       output          (-> @state
+                                           (assoc :body (.toString os)))]
+                   ;; TODO: find a way to compare body (mind input stream etc.)
+                   (= (dissoc config' :body) (dissoc output :body)))))
+
 
 (comment
 
@@ -107,13 +133,16 @@
 
  (s/explain-data :ring/response (handler (gen/generate request-config-gen))))
 
+
 (tct/defspec prop-request 1000 valid-request-prop)
 
 (tct/defspec prop-response 1000 valid-response-prop)
 
+
 (defn parse-body
   [req]
   (update req :body slurp))
+
 
 (deftest ring-adapter
   (let [headers {"Host"              ["example.com"]
@@ -125,8 +154,9 @@
                  :path    "/opa"
                  :body    "olar"}
         ring    (ring/request->ring (create-request req) 8080)
-        handler (lint/wrap-lint (fn [_] {:status  200
-                                         :headers {}}))]
+        handler (lint/wrap-lint (fn [_]
+                                  {:status  200
+                                   :headers {}}))]
     (is (= (parse-body ring)
            {:body           "olar"
             :headers        {"host"              "example.com"
