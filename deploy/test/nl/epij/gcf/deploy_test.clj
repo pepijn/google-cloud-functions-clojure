@@ -1,7 +1,7 @@
-(ns nl.epij.gcf.run-test
+(ns nl.epij.gcf.deploy-test
   (:require [clojure.test :refer [deftest is]]
             [helpers :refer [with-tmp-dir list-files zip-file files-in-zip]]
-            [nl.epij.gcf.run :as run]
+            [nl.epij.gcf.deploy :as deploy]
             [clojure.java.io :as io]
             [badigeon.classpath :as classpath]))
 
@@ -10,7 +10,7 @@
   (with-tmp-dir
    (fn [java-compile-dir]
      (let [class-path (classpath/make-classpath {:aliases [:example]})]
-       (try (run/compile-javac! {:src-dir       "../example/src/java"
+       (try (deploy/compile-javac! {:src-dir    "../example/src/java"
                                  :compile-path  java-compile-dir
                                  :javac-options ["-cp" class-path]})
             (body java-compile-dir))))))
@@ -27,8 +27,8 @@
       (fn [compile-path]
         (let [jar-path (io/file tmp-dir "uberjar.jar")
               options  '{:entrypoint JsonHttpEcho}]
-          (run/build-jar! (merge options
-                                 {:out-path     (str jar-path)
+          (deploy/build-jar! (merge options
+                                    {:out-path     (str jar-path)
                                   :aliases      [:example]
                                   :compile-path compile-path}))
           (body jar-path)))))))
