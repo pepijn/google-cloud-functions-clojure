@@ -1,1 +1,1 @@
-#!/usr/bin/env bb --classpath src --main pre-push
+#!/usr/bin/env bb --classpath .githooks/src --main pre-push

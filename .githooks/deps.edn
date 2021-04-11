@@ -1,1 +1,2 @@
-{}
+{:deps {babashka/process {:mvn/version "0.0.2"}
+        babashka/fs      {:mvn/version "0.0.3"}}}
