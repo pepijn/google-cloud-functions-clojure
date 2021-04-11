@@ -9,7 +9,7 @@ Check out the `example/`.
 
 ## Rationale
 
-Google Cloud Functions (GCF)—and other serverless products like AWS Lambda—offer a cheap way to run your application.
+Google Cloud Functions (GCF)—like other serverless products such as AWS Lambda—offer a cheap way to run your application.
 You also don't have to worry about deployment specifics of your code and messing around with Docker containers.
 Instead, you simply tell GCF the function name to invoke when triggered.
 
