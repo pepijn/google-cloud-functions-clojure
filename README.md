@@ -54,3 +54,14 @@ Instead, you simply tell GCF the function name to invoke when triggered.
 Clojure enthousiasts can now use this project to have that function be a Clojure function.
 More specifically, a ring adapter (in the case of an HTTP trigger).
 In this library you'll find all that's necessary to reach that goal—batteries (deployment, structured logging, etc.) included.
+
+## FAQ
+
+### Why do I need to write the entrypoint class in Java—can't we compile it from Clojure?
+
+Compiling the Java entrypoint from Clojure works when you're running locally, yes.
+But, during deployment, Google instantiates the entrypoint class while not having Clojure on the classpath.
+That is a problem since Clojure's compiled Java code contains a `static {}` block that requires Clojure.
+Clojure is not available and causes the build to fail.
+Therefore, you need a very minimal Java class that points to your ring handler.
+By the way, Clojure is only loaded once—even between subsequent Cloud Function invocations—this is good for performance.
