@@ -42,10 +42,6 @@
 
 (comment
  (do! "3043969777c39b610777e676dba676fceb3754ba"
-      (-> @(proc/process ["pwd"]
-                         {:out :string :err :string})
-          :out
-          fs/parent
-          str))
+      "..")
 
  )
