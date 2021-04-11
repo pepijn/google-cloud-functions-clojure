@@ -30,11 +30,6 @@
     (run! proc/check steps)))
 
 
-(comment
- (run-steps! ".")
- )
-
-
 (defn do!
   ([sha]
    (do! sha "."))
