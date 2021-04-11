@@ -1,7 +1,7 @@
 {:deps    {org.clojure/clojure             {:mvn/version "1.10.3"}
            org.clojure/java.classpath      {:mvn/version "1.0.0"}
            badigeon/badigeon               {:mvn/version "1.4"}
-           babashka/process                {:mvn/version "0.0.1"}
+           babashka/process                {:mvn/version "0.0.2"}
            com.github.seancorfield/depstar {:mvn/version "2.0.193"}}
  :paths   ["src"]
  :aliases {:test    {:extra-deps  {com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}
