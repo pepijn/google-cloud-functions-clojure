@@ -5,6 +5,37 @@
     [clojure.string :as str]))
 
 
+(defn run-steps!
+  ([] (run-steps! "."))
+  ([dir]
+   (let [steps [(proc/process ["clj-kondo" "--lint" "."]
+                              {:out :inherit
+                               :err :inherit
+                               :dir dir})
+                (proc/process ["cljstyle" "check"]
+                              {:out :inherit
+                               :err :inherit
+                               :dir dir})
+                (proc/process ["lein" "with-profile" "compile,dev" "test"]
+                              {:out :inherit
+                               :err :inherit
+                               :dir dir})
+                (proc/process ["clojure" "-M:test"]
+                              {:out :inherit
+                               :err :inherit
+                               :dir (fs/file dir "deploy")})
+                (proc/process ["clojure" "-M:test"]
+                              {:out :inherit
+                               :err :inherit
+                               :dir (fs/file dir "example")})]]
+     (run! proc/check steps))))
+
+
+(comment
+ (run-steps! ".")
+ )
+
+
 (defn do!
   ([sha]
    (do! sha "."))
@@ -14,30 +45,15 @@
                                                    {:dir dir})
                                           (proc/pb '[tar --extract]
                                                    {:dir tmp-dir})))
-          (let [steps [(proc/process ["clj-kondo" "--lint" "."]
-                                     {:out :inherit
-                                      :err :inherit
-                                      :dir tmp-dir})
-                       (proc/process ["cljstyle" "check"]
-                                     {:out :inherit
-                                      :err :inherit
-                                      :dir tmp-dir})
-                       (proc/process ["lein" "with-profile" "compile,dev" "test"]
-                                     {:out :inherit
-                                      :err :inherit
-                                      :dir tmp-dir})
-                       (proc/process ["clojure" "-M:test"]
-                                     {:out :inherit
-                                      :err :inherit
-                                      :dir (fs/file tmp-dir "deploy")})]]
-            (run! proc/check steps))
+          (run-steps! tmp-dir)
           (finally (fs/delete-tree tmp-dir))))))
 
 
 (defn -main
   [& _args]
   (let [[_ref sha] (-> *in* slurp (str/split #" "))]
-    (do! sha)))
+    (when sha
+      (do! sha))))
 
 
 (comment
