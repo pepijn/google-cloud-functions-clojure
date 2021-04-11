@@ -6,29 +6,28 @@
 
 
 (defn run-steps!
-  ([] (run-steps! "."))
-  ([dir]
-   (let [steps [(proc/process ["clj-kondo" "--lint" "."]
-                              {:out :inherit
-                               :err :inherit
-                               :dir dir})
-                (proc/process ["cljstyle" "check"]
-                              {:out :inherit
-                               :err :inherit
-                               :dir dir})
-                (proc/process ["lein" "with-profile" "compile,dev" "test"]
-                              {:out :inherit
-                               :err :inherit
-                               :dir dir})
-                (proc/process ["clojure" "-M:test"]
-                              {:out :inherit
-                               :err :inherit
-                               :dir (fs/file dir "deploy")})
-                (proc/process ["clojure" "-M:test"]
-                              {:out :inherit
-                               :err :inherit
-                               :dir (fs/file dir "example")})]]
-     (run! proc/check steps))))
+  [{:keys [dir]}]
+  (let [steps [(proc/process ["clj-kondo" "--lint" "."]
+                             {:out :inherit
+                              :err :inherit
+                              :dir dir})
+               (proc/process ["cljstyle" "check"]
+                             {:out :inherit
+                              :err :inherit
+                              :dir dir})
+               (proc/process ["lein" "with-profile" "compile,dev" "test"]
+                             {:out :inherit
+                              :err :inherit
+                              :dir dir})
+               (proc/process ["clojure" "-M:test"]
+                             {:out :inherit
+                              :err :inherit
+                              :dir (fs/file dir "deploy")})
+               (proc/process ["clojure" "-M:test"]
+                             {:out :inherit
+                              :err :inherit
+                              :dir (fs/file dir "example")})]]
+    (run! proc/check steps)))
 
 
 (comment
@@ -45,7 +44,7 @@
                                                    {:dir dir})
                                           (proc/pb '[tar --extract]
                                                    {:dir tmp-dir})))
-          (run-steps! tmp-dir)
+          (run-steps! {:dir tmp-dir})
           (finally (fs/delete-tree tmp-dir))))))
 
 
