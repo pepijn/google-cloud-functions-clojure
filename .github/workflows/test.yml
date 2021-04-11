@@ -70,6 +70,29 @@ jobs:
       - name: Run tests
         run: ./deploy/bin/test.sh
 
+  test-example:
+    runs-on: ubuntu-latest
+    needs:
+      - deps
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - uses: DeLaGuardo/setup-clojure@master
+        with:
+          tools-deps: '1.10.3.814'
+
+      # FIXME: although it helps a bit, this is not using the deps.edn deps of this subproject
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
+
+      - name: Run tests
+        run: clojure -M:test
+        working-directory: example
+
   publish-snapshot:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
@@ -77,6 +100,7 @@ jobs:
       - lint
       - test
       - test-deploy
+      - test-example
     steps:
       - name: Maven cache
         uses: actions/cache@v2

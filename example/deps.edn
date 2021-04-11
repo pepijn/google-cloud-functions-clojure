@@ -3,18 +3,27 @@
            ring/ring-json                             {:mvn/version "0.5.0"}
            ring/ring-devel                            {:mvn/version "1.8.2"}}
  :paths   ["src/clojure" "src/java"]
- :aliases {:assemble {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
-                                                       :sha       "56524a70f201340437a4da4578e8da4dbe5b8b4e"
+ :aliases {:test     {:extra-deps  {babashka/babashka                                        {:mvn/version "0.3.3"}
+                                    com.google.cloud.functions.invoker/java-function-invoker {:mvn/version "1.0.2"}
+                                    nl.epij.gcf/deploy                                       {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
+                                                                                              :sha       "56524a70f201340437a4da4578e8da4dbe5b8b4e"
+                                                                                              :deps/root "deploy"}
+                                    com.cognitect/test-runner                                {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                                                              :sha     "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+                      :extra-paths ["test"]
+                      :main-opts   ["-m" "cognitect.test-runner"]}
+           :assemble {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
+                                                       :sha       "3772d2489d8f590df1b28b87a70d364b6311a0cd"
                                                        :deps/root "deploy"}}
-                      :exec-fn    nl.epij.gcp.gcf.run/assemble-jar!
+                      :exec-fn    nl.epij.gcp.deploy/assemble-jar!
                       :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
                                    :nl.epij.gcf/java-paths   ["src/java"]
                                    :nl.epij.gcf/compile-path "target/classes"
                                    :nl.epij.gcf/jar-path     "target/artifacts/application.jar"}}
            :run      {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
-                                                       :sha       "56524a70f201340437a4da4578e8da4dbe5b8b4e"
+                                                       :sha       "3772d2489d8f590df1b28b87a70d364b6311a0cd"
                                                        :deps/root "deploy"}}
-                      :exec-fn    nl.epij.gcp.gcf.run/run-server!
+                      :exec-fn    nl.epij.gcf.deploy/run-server!
                       :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
                                    :nl.epij.gcf/java-paths   ["src/java"]
                                    :nl.epij.gcf/compile-path "target/classes"
