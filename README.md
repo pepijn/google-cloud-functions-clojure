@@ -5,7 +5,45 @@ This library is still in alpha state—some namespaces might change before the f
 
 ## Usage
 
-Check out the `example/`.
+You can run your cloud function locally or deploy it to Google Cloud Functions.
+Before running or deploying, create a [Java entrypoint](https://cloud.google.com/functions/docs/writing#structuring_source_code) ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/master/example/src/java/JsonHttpEcho.java)).
+Inside the entrypoint, specify your fully-qualified ring handler ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/src/java/JsonHttpEcho.java#L5)).
+
+### Running locally
+
+Add an alias to your `deps.edn` if you want to run locally, such as:
+
+```clojure
+{:aliases {:run {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
+                                                  :sha       "3772d2489d8f590df1b28b87a70d364b6311a0cd"
+                                                  :deps/root "deploy"}}
+                 :exec-fn    nl.epij.gcf.deploy/run-server!
+                 :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
+                              :nl.epij.gcf/java-paths   ["src/java"]
+                              :nl.epij.gcf/compile-path "target/classes"
+                              :nl.epij.gcf/jar-path     "target/artifacts/application.jar"}}}}
+```
+
+Then run the server:
+
+```bash
+PORT=13337 clojure -X:run
+```
+
+Finally, send HTTP requests to it:
+```bash
+curl localhost:13337
+```
+
+### Deploying to Cloud Functions
+
+Before you can do the first HTTP request to your deployed Cloud Function ring handler, you need to take the following steps:
+
+1. Add a JAR assemble alias in your `deps.edn` file that specifies the entrypoint mentioned above ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/deps.edn#L15-L22))
+1. Deploy the cloud function using the [`gcloud` SDK](https://cloud.google.com/sdk/), specifying the directory containing the JAR with `--source` (example coming soon)
+
+Check out the [`example/`](https://github.com/pepijn/google-cloud-function-ring-adapter/tree/master/example) in this repository for more information.
+
 
 ## Rationale
 
