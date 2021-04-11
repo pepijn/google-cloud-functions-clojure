@@ -6,3 +6,13 @@ This library is still in alpha state—some namespaces might change before the f
 ## Usage
 
 Check out the `example/`.
+
+## Rationale
+
+Google Cloud Functions (GCF)—and other serverless products like AWS Lambda—offer a cheap way to run your application.
+You also don't have to worry about deployment of your code and messing around with Docker containers.
+Instead, you simply tell GCF what function to invoke when triggered.
+
+For Clojure enthousiasts, that function name should ideally be a Clojure function.
+More specifically, a ring adapter (in the case of a HTTP trigger).
+In this library you'll find all that's necessary to reach that goal—batteries (deployment, structured logging, etc.) included.
