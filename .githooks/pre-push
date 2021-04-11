@@ -1,3 +1,1 @@
-#!/usr/bin/env bb
-
-(prn "hoi" *input*)
+#!/usr/bin/env bb --classpath src --main pre-push
