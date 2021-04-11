@@ -6,8 +6,8 @@ This library is still in alpha state—some namespaces might change before the f
 ## Usage
 
 You can run your cloud function locally or deploy it to Google Cloud Functions.
-Before running or deploying, create a [Java entrypoint](https://cloud.google.com/functions/docs/writing#structuring_source_code) ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/master/example/src/java/JsonHttpEcho.java)).
-Inside the entrypoint, specify your fully-qualified ring handler ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/src/java/JsonHttpEcho.java#L5)).
+**Before running or deploying, create a [Java entrypoint](https://cloud.google.com/functions/docs/writing#structuring_source_code) ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/master/example/src/java/JsonHttpEcho.java)).
+Inside the entrypoint, specify your fully-qualified ring handler ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/src/java/JsonHttpEcho.java#L5)).**
 
 ### Running locally
 
