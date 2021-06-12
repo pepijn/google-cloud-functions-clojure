@@ -15,7 +15,7 @@
            :assemble {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
                                                        :sha       "3772d2489d8f590df1b28b87a70d364b6311a0cd"
                                                        :deps/root "deploy"}}
-                      :exec-fn    nl.epij.gcp.deploy/assemble-jar!
+                      :exec-fn    nl.epij.gcf.deploy/assemble-jar!
                       :exec-args  {:nl.epij.gcf/entrypoint   JsonHttpEcho
                                    :nl.epij.gcf/java-paths   ["src/java"]
                                    :nl.epij.gcf/compile-path "target/classes"
