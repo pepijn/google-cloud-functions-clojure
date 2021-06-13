@@ -68,7 +68,7 @@ The library includes a [namespace for structured logging](src/clojure/nl/epij/gc
 
 In order to enable structured logging, add the `logback.xml` file to your classpath (e.g. in a `resources/` directory):
 
-```
+```xml
 <configuration>
     <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
