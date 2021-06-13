@@ -10,14 +10,14 @@
   :resource-paths []
   :dependencies [[org.clojure/clojure "1.10.3" :scope "provided"]
                  [com.google.cloud.functions/functions-framework-api "1.0.4"]
-                 [com.google.cloud/google-cloud-core "1.94.4"]
+                 [com.google.cloud/google-cloud-core "1.95.2"]
                  [net.logstash.logback/logstash-logback-encoder "6.6"]
                  [ch.qos.logback/logback-classic "1.2.3"]
-                 [com.fasterxml.jackson.core/jackson-core "2.12.1"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.3"]
                  [cheshire/cheshire "5.10.0"]]
   :profiles {:compile {:resource-paths []}
              :dev     {:dependencies [[org.clojure/test.check "1.1.0"]
-                                      [ring/ring-devel "1.8.2"]
+                                      [ring/ring-devel "1.9.3"]
                                       [ring/ring-spec "0.0.4"]]}}
   :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
                                     :username      :env/clojars_user
