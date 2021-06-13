@@ -34,7 +34,7 @@
 
 
 (defn structured-arguments
-  [level ^String data]
+  [level data]
   (let [data' (-> data
                   (assoc-edn)
                   (walk/stringify-keys)
