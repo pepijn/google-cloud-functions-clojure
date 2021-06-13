@@ -1,6 +1,6 @@
 (defproject nl.epij/google-cloud-functions-ring-adapter "0.1.0-SNAPSHOT"
   :description "A (Clojure) ring adapter for the Cloud Function Java Runtime on Google Cloud Platform"
-  :url "https://github.com/pepijn/google-cloud-function-ring-adapter"
+  :url "https://github.com/pepijn/google-cloud-functions-clojure"
   :license {:name "MIT"
             :url  "https://opensource.org/licenses/MIT"}
   :source-paths ["src/clojure"]
