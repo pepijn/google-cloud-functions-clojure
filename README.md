@@ -64,6 +64,31 @@ The library includes a [namespace for structured logging](src/clojure/nl/epij/gc
 - `:nl.epij.gcf.env/k-revision`
 - `:nl.epij.gcf.env/port`
 
+### Structured Logging
+
+In order to enable structured logging, add the `logback.xml` file to your classpath (e.g. in a `resources/` directory):
+
+```
+<configuration>
+    <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- Ignore default logging fields -->
+            <fieldNames>
+                <timestamp>[ignore]</timestamp>
+                <version>[ignore]</version>
+                <logger>[ignore]</logger>
+                <thread>[ignore]</thread>
+                <level>[ignore]</level>
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="jsonConsoleAppender"/>
+    </root>
+</configuration>
+```
+
 ## FAQ
 
 ### Why do I need to write the entrypoint class in Java—can't we compile it from Clojure?
