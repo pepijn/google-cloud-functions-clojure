@@ -57,7 +57,13 @@ In this library you'll find all that's necessary to reach that goal—batteries 
 
 ## Extras
 
-The library includes a [namespace for structured logging](src/clojure/nl/epij/gcf/log.clj) and a [namespace with ring middleware to make working with PubSub-triggered invocations easier](src/clojure/nl/epij/pubsub/middleware.clj).
+The library includes a [namespace for structured logging](src/clojure/nl/epij/gcf/log.clj) and a [namespace with ring middleware to make working with PubSub-triggered invocations easier](src/clojure/nl/epij/pubsub/middleware.clj). Also, the ring request map has [Google Cloud Functions environment variables](https://cloud.google.com/functions/docs/env-var#newer_runtimes) assoced to it:
+
+- `:nl.epij.gcf.env/function-target`
+- `:nl.epij.gcf.env/function-signature-type`
+- `:nl.epij.gcf.env/k-service`
+- `:nl.epij.gcf.env/k-revision`
+- `:nl.epij.gcf.env/port`
 
 ## FAQ
 
