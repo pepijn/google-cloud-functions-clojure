@@ -39,7 +39,7 @@ curl localhost:13337
 Before you can do the first HTTP request to your deployed Cloud Function ring handler, you need to take the following steps:
 
 1. Add a JAR assemble alias in your `deps.edn` file that specifies the entrypoint mentioned above ([example](https://github.com/pepijn/google-cloud-functions-clojure/blob/dd081026461daa18d24a38b83404a75918d7b11a/example/deps.edn#L15-L22))
-1. Deploy the cloud function using the [`gcloud` SDK](https://cloud.google.com/sdk/), specifying the directory containing the JAR with `--source` (example coming soon)
+1. Deploy the cloud function using the [`gcloud` SDK](https://cloud.google.com/sdk/), specifying the directory containing the JAR with `--source`. See the example in the Pathom docs: https://pathom3.wsscode.com/docs/tutorials/serverless-pathom-gcf#gcf-deploy
 
 Check out the [`example/`](https://github.com/pepijn/google-cloud-functions-clojure/tree/master/example) in this repository for more information.
 
