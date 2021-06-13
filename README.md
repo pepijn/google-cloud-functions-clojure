@@ -1,4 +1,4 @@
-# google-cloud-function-ring-adapter [![Test](https://github.com/pepijn/google-cloud-function-ring-adapter/actions/workflows/test.yml/badge.svg)](https://github.com/pepijn/google-cloud-function-ring-adapter/actions/workflows/test.yml) [![Clojars Project](https://img.shields.io/clojars/v/nl.epij/google-cloud-function-ring-adapter.svg)](https://clojars.org/nl.epij/google-cloud-function-ring-adapter)
+# google-cloud-functions-ring-adapter [![Test](https://github.com/pepijn/google-cloud-functions-clojure/actions/workflows/test.yml/badge.svg)](https://github.com/pepijn/google-cloud-functions-clojure/actions/workflows/test.yml) [![Clojars Project](https://img.shields.io/clojars/v/nl.epij/google-cloud-functions-ring-adapter.svg)](https://clojars.org/nl.epij/google-cloud-functions-ring-adapter)
 
 A (Clojure) [ring](https://github.com/ring-clojure/ring) adapter for the [Google Cloud Function Java Runtime](https://cloud.google.com/functions/docs/concepts/java-runtime) on Google Cloud Platform.
 This library is still in alpha state—some namespaces might change before the first release.
@@ -6,15 +6,15 @@ This library is still in alpha state—some namespaces might change before the f
 ## Usage
 
 You can run your cloud function locally or deploy it to Google Cloud Functions.
-**Before running or deploying, create a [Java entrypoint](https://cloud.google.com/functions/docs/writing#structuring_source_code) ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/master/example/src/java/JsonHttpEcho.java)).
-Inside the entrypoint, specify your fully-qualified ring handler ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/src/java/JsonHttpEcho.java#L5)).**
+**Before running or deploying, create a [Java entrypoint](https://cloud.google.com/functions/docs/writing#structuring_source_code) ([example](https://github.com/pepijn/google-cloud-functions-clojure/blob/master/example/src/java/JsonHttpEcho.java)).
+Inside the entrypoint, specify your fully-qualified ring handler ([example](https://github.com/pepijn/google-cloud-functions-clojure/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/src/java/JsonHttpEcho.java#L5)).**
 
 ### Running locally
 
 Add an alias to your `deps.edn` if you want to run locally, such as:
 
 ```clojure
-{:aliases {:run {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-function-ring-adapter"
+{:aliases {:run {:extra-deps {nl.epij.gcf/deploy {:git/url   "https://github.com/pepijn/google-cloud-functions-clojure"
                                                   :sha       "3772d2489d8f590df1b28b87a70d364b6311a0cd"
                                                   :deps/root "deploy"}}
                  :exec-fn    nl.epij.gcf.deploy/run-server!
@@ -39,10 +39,10 @@ curl localhost:13337
 
 Before you can do the first HTTP request to your deployed Cloud Function ring handler, you need to take the following steps:
 
-1. Add a JAR assemble alias in your `deps.edn` file that specifies the entrypoint mentioned above ([example](https://github.com/pepijn/google-cloud-function-ring-adapter/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/deps.edn#L15-L22))
+1. Add a JAR assemble alias in your `deps.edn` file that specifies the entrypoint mentioned above ([example](https://github.com/pepijn/google-cloud-functions-clojure/blob/f0ed93a7347a35923c3c3f065b9a2d8f145766dc/example/deps.edn#L15-L22))
 1. Deploy the cloud function using the [`gcloud` SDK](https://cloud.google.com/sdk/), specifying the directory containing the JAR with `--source` (example coming soon)
 
-Check out the [`example/`](https://github.com/pepijn/google-cloud-function-ring-adapter/tree/master/example) in this repository for more information.
+Check out the [`example/`](https://github.com/pepijn/google-cloud-functions-clojure/tree/master/example) in this repository for more information.
 
 
 ## Rationale

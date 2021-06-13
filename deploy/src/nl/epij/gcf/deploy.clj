@@ -26,7 +26,7 @@
 (defn- get-clj-nss!
   [{::gcf/keys [compile-path entrypoint]}]
   ;; TODO: replace with :aliases
-  (let [deps {:aliases {:java {:replace-deps  '{nl.epij/google-cloud-function-ring-adapter {:mvn/version "0.1.0-SNAPSHOT"}}
+  (let [deps {:aliases {:java {:replace-deps  '{nl.epij/google-cloud-functions-ring-adapter {:mvn/version "0.1.0-SNAPSHOT"}}
                                :replace-paths [(str compile-path)]}}}
         eval `(let [object# (new ~entrypoint)]
                 {::handler-ns (-> (.getHandler object#) symbol namespace symbol)
@@ -106,10 +106,8 @@
 
 (comment
 
- (start-server! {})
+  (start-server! {})
 
- (stop-server!)
+  (stop-server!)
 
- (run-server! {})
-
- )
+  (run-server! {}))

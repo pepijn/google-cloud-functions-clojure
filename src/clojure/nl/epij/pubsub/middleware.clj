@@ -2,7 +2,7 @@
   (:require
     [cheshire.core :as json]
     [clojure.string :as str]
-    [nl.epij.gcp.gcf.log :as log]
+    [nl.epij.gcf.log :as log]
     [nl.epij.pubsub.body :as body]
     [nl.epij.pubsub.message :as message])
   (:import

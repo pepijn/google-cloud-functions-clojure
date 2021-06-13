@@ -119,19 +119,19 @@
 
 (comment
 
- (tc/quick-check 100 valid-response-prop)
+  (tc/quick-check 100 valid-response-prop)
 
- #_(let [os       (ByteArrayOutputStream.)
-         state    (atom {})
-         response (create-response state os)
-         config   (gen/generate handler-config-gen)
-         #_#_ring (ring/process-response! config response)]
-     (prn os)
-     (assoc @state
-       :input-body (:body config)
-       :body (.toString os)))
+  #_(let [os       (ByteArrayOutputStream.)
+          state    (atom {})
+          response (create-response state os)
+          config   (gen/generate handler-config-gen)
+          #_#_ring (ring/process-response! config response)]
+      (prn os)
+      (assoc @state
+             :input-body (:body config)
+             :body (.toString os)))
 
- (s/explain-data :ring/response (handler (gen/generate request-config-gen))))
+  (s/explain-data :ring/response (handler (gen/generate request-config-gen))))
 
 
 (tct/defspec prop-request 1000 valid-request-prop)
