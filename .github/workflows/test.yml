@@ -90,7 +90,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
 
       - name: Run tests
-        run: clojure -M:test
+        run: clojure -Sdeps '{:replace-deps {nl.epij/google-cloud-functions-ring-adapter {:local/root ".."}}}' -M:test
         working-directory: example
 
   publish-snapshot:
