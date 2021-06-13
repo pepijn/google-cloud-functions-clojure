@@ -106,10 +106,8 @@
 
 (comment
 
- (start-server! {})
+  (start-server! {})
 
- (stop-server!)
+  (stop-server!)
 
- (run-server! {})
-
- )
+  (run-server! {}))
