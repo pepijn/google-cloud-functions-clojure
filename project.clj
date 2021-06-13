@@ -1,4 +1,4 @@
-(defproject nl.epij/google-cloud-functions-ring-adapter "0.1.0-SNAPSHOT"
+(defproject nl.epij/google-cloud-functions-ring-adapter "0.2.0-SNAPSHOT"
   :description "A (Clojure) ring adapter for the Cloud Function Java Runtime on Google Cloud Platform"
   :url "https://github.com/pepijn/google-cloud-functions-clojure"
   :license {:name "MIT"
