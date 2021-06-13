@@ -1,4 +1,4 @@
-package nl.epij.gcp.gcf;
+package nl.epij.gcf;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
