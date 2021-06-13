@@ -55,6 +55,10 @@ Clojure enthousiasts can now use this project to have that function be a Clojure
 More specifically, a ring adapter (in the case of an HTTP trigger).
 In this library you'll find all that's necessary to reach that goal—batteries (deployment, structured logging, etc.) included.
 
+## Extras
+
+The library includes a [namespace for structured logging](src/clojure/nl/epij/gcf/log.clj) and a [namespace with ring middleware to make working with PubSub-triggered invocations easier](src/clojure/nl/epij/pubsub/middleware.clj).
+
 ## FAQ
 
 ### Why do I need to write the entrypoint class in Java—can't we compile it from Clojure?
